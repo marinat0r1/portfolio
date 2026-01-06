@@ -1,0 +1,92 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #121620;
+  --text: #e8eefc;
+  --muted: #a9b4cc;
+  --border: rgba(232, 238, 252, 0.12);
+  --accent: #7aa2ff;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 980px; margin: 0 auto; padding: 20px; }
+
+.site-header {
+  position: sticky;
+  top: 0;
+  background: rgba(11, 13, 16, 0.75);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner { display: flex; align-items: center; justify-content: space-between; }
+.brand { font-weight: 700; color: var(--text); }
+
+.nav { list-style: none; display: flex; gap: 14px; margin: 0; padding: 0; }
+.nav a { color: var(--muted); padding: 8px 10px; border-radius: 8px; }
+.nav a.active { color: var(--text); background: rgba(232, 238, 252, 0.08); }
+
+.site-footer { border-top: 1px solid var(--border); margin-top: 40px; }
+.footer-inner { display: flex; justify-content: space-between; gap: 12px; padding-top: 16px; color: var(--muted); }
+
+.hero { padding: 32px 0 18px; }
+.hero h1 { font-size: clamp(28px, 4vw, 44px); margin: 0 0 8px; }
+.hero p { color: var(--muted); max-width: 60ch; }
+
+.actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.button {
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #0b0d10;
+  font-weight: 600;
+}
+.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.tags { list-style: none; display: flex; gap: 8px; padding: 0; margin: 10px 0 0; flex-wrap: wrap; }
+.tags li {
+  font-size: 12px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.placeholder {
+  margin-top: 10px;
+  height: 220px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}

@@ -1,16 +1,27 @@
 ---
-
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="YourName — Portfolio" description="Developer portfolio">
+  <section class="hero">
+    <h1>Hi, I’m YourName.</h1>
+    <p>
+      I build X/Y/Z. This is a minimal portfolio skeleton you can extend.
+    </p>
+
+    <div class="actions">
+      <a class="button" href="/projects">View projects</a>
+      <a class="button secondary" href="/about">About</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Graphics sandbox (later)</h2>
+    <p>
+      You can drop in a canvas/WebGL/Three.js component here when you’re ready.
+    </p>
+    <div class="placeholder">
+      Placeholder: future graphics
+    </div>
+  </section>
+</BaseLayout>
