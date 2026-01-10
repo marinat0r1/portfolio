@@ -1,27 +1,53 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import CustomerTypeGame from "../components/CustomerTypeGame.astro";
 ---
 
 <BaseLayout title="YourName — Portfolio" description="Developer portfolio">
-  <section class="hero">
-    <h1>Hi, I’m YourName.</h1>
-    <p>
-      I build X/Y/Z. This is a minimal portfolio skeleton you can extend.
-    </p>
-
-    <div class="actions">
-      <a class="button" href="/projects">View projects</a>
-      <a class="button secondary" href="/about">About</a>
+  <section slot="fullbleed" class="landing-hero">
+    <div class="landing-hero__inner">
+      <h1 class="landing-hero__title">
+        <span class="text-color-blue" >Your</span> Website<br />Done <span class="text-color-blue">Right</span>
+      </h1>
+      <p class="landing-hero__subtitle">
+        I design and build fast, modern sites for your business.
+      </p>
+    </div>
+    <div class= "landing-hero__inner cta-buttons">
+      <a class="btn btn-primary" href="#">
+        Contact Me
+        <span class="arrow" aria-hidden="true">
+          <!-- cleaner chevron arrow -->
+          <svg viewBox="0 0 24 24" class="arrow-icon">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </span>
+      </a>
+      
+      <!-- TODO: Use astro components rather then css -->
+      <a class="btn btn-secondary" href="#">Go to Packages</a>
     </div>
   </section>
 
-  <section class="card">
-    <h2>Graphics sandbox (later)</h2>
-    <p>
-      You can drop in a canvas/WebGL/Three.js component here when you’re ready.
-    </p>
-    <div class="placeholder">
-      Placeholder: future graphics
-    </div>
+  <section slot="fullbleed" class="landing-hero">
+    <img
+    src="/website-process-hero-2.svg"
+    alt="From idea to live website: Plan, Design, Code, Launch"
+    width="1200"
+    height="675"
+    loading="lazy"
+  />
+  </section>
+
+  <section class="container">
+    <section class="card">
+      <h2>Who are you?</h2>
+      <CustomerTypeGame />
+    </section>
+
+    <section class="card">
+      <h2>What I do</h2>
+      <p class="muted">Websites, landing pages, performance, SEO basics, maintenance.</p>
+    </section>
   </section>
 </BaseLayout>

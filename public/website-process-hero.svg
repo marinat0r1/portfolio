@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="360" viewBox="0 0 1400 360" role="img" aria-label="Website creation process: Plan, Design, Build, Launch">
+  <defs>
+    <!-- Subtle glass fill for dark backgrounds -->
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <!-- Accent colors -->
+    <linearGradient id="accentA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C5CFF"/>
+      <stop offset="1" stop-color="#4B8BFF"/>
+    </linearGradient>
+    <linearGradient id="accentB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#34D6FF"/>
+      <stop offset="1" stop-color="#45FFB1"/>
+    </linearGradient>
+    <linearGradient id="accentC" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#45FFB1"/>
+      <stop offset="1" stop-color="#A7FF6A"/>
+    </linearGradient>
+    <linearGradient id="accentD" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF5BA6"/>
+      <stop offset="1" stop-color="#FFB84D"/>
+    </linearGradient>
+
+    <!-- Shadow tuned for dark backgrounds -->
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <!-- Very subtle glow (professional, not flashy) -->
+    <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.22 0" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      .title { font: 900 26px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; fill: #EAF0FF; opacity: .92; }
+      .cardTitle { font: 800 18px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; fill: #EAF0FF; }
+      .cardSub { font: 500 13px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; fill: #EAF0FF; opacity: .72; }
+      .badgeText { font: 800 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; fill: #0B1026; }
+    </style>
+  </defs>
+
+  <!-- Transparent background on purpose (no rect) -->
+
+  <!-- Header (optional; delete if you want only the cards) -->
+  <text x="90" y="70" class="title">From brief to launch</text>
+
+  <!-- Straight connector line (subtle) -->
+  <line x1="140" y1="190" x2="1260" y2="190" stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/>
+  <!-- Progress segments -->
+  <line x1="140" y1="190" x2="430" y2="190" stroke="url(#accentA)" stroke-opacity="0.55" stroke-width="4" filter="url(#softGlow)"/>
+  <line x1="430" y1="190" x2="720" y2="190" stroke="url(#accentB)" stroke-opacity="0.55" stroke-width="4" filter="url(#softGlow)"/>
+  <line x1="720" y1="190" x2="1010" y2="190" stroke="url(#accentC)" stroke-opacity="0.55" stroke-width="4" filter="url(#softGlow)"/>
+  <line x1="1010" y1="190" x2="1260" y2="190" stroke="url(#accentD)" stroke-opacity="0.55" stroke-width="4" filter="url(#softGlow)"/>
+
+  <!-- Node dots -->
+  <g filter="url(#softGlow)">
+    <circle cx="240" cy="190" r="7" fill="#7C5CFF"/>
+    <circle cx="530" cy="190" r="7" fill="#34D6FF"/>
+    <circle cx="820" cy="190" r="7" fill="#45FFB1"/>
+    <circle cx="1110" cy="190" r="7" fill="#FF5BA6"/>
+  </g>
+
+  <!-- Cards row -->
+  <!-- Card component: glass + left accent bar + icon + text -->
+  <g transform="translate(90 110)">
+    <!-- PLAN -->
+    <g transform="translate(0 0)">
+      <rect x="0" y="0" width="310" height="170" rx="20" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.14" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="6" height="170" rx="20" fill="url(#accentA)" opacity="0.95"/>
+
+      <rect x="22" y="22" width="42" height="42" rx="14" fill="url(#accentA)" opacity="0.18"/>
+      <!-- minimal “brief” icon -->
+      <path d="M34 30h18a4 4 0 0 1 4 4v20a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4V34a4 4 0 0 1 4-4z"
+            fill="none" stroke="#DCD6FF" stroke-width="2.2" opacity="0.95"/>
+      <path d="M34 40h18M34 46h14" stroke="#DCD6FF" stroke-width="2.2" stroke-linecap="round" opacity="0.95"/>
+
+      <text x="22" y="92" class="cardTitle">Plan</text>
+      <text x="22" y="118" class="cardSub">Goals, scope, sitemap</text>
+
+      <rect x="22" y="136" width="118" height="28" rx="12" fill="#FFFFFF" opacity="0.12"/>
+      <text x="36" y="155" class="cardSub" opacity="0.85">1–2 days</text>
+    </g>
+
+    <!-- DESIGN -->
+    <g transform="translate(330 0)">
+      <rect x="0" y="0" width="310" height="170" rx="20" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.14" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="6" height="170" rx="20" fill="url(#accentB)" opacity="0.95"/>
+
+      <rect x="22" y="22" width="42" height="42" rx="14" fill="url(#accentB)" opacity="0.18"/>
+      <!-- minimal “layout” icon -->
+      <rect x="30" y="30" width="26" height="26" rx="6" fill="none" stroke="#C8F5FF" stroke-width="2.2" opacity="0.95"/>
+      <path d="M30 38h26M38 30v26" stroke="#C8F5FF" stroke-width="2.2" opacity="0.75"/>
+
+      <text x="22" y="92" class="cardTitle">Design</text>
+      <text x="22" y="118" class="cardSub">Wireframes → UI system</text>
+
+      <rect x="22" y="136" width="142" height="28" rx="12" fill="#FFFFFF" opacity="0.12"/>
+      <text x="36" y="155" class="cardSub" opacity="0.85">2–5 days</text>
+    </g>
+
+    <!-- BUILD -->
+    <g transform="translate(660 0)">
+      <rect x="0" y="0" width="310" height="170" rx="20" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.14" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="6" height="170" rx="20" fill="url(#accentC)" opacity="0.95"/>
+
+      <rect x="22" y="22" width="42" height="42" rx="14" fill="url(#accentC)" opacity="0.18"/>
+      <!-- minimal “code” icon -->
+      <path d="M36 34l-8 8 8 8M50 34l8 8-8 8" fill="none" stroke="#CFFFE9" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+
+      <text x="22" y="92" class="cardTitle">Build</text>
+      <text x="22" y="118" class="cardSub">Components, CMS, SEO</text>
+
+      <rect x="22" y="136" width="150" height="28" rx="12" fill="#FFFFFF" opacity="0.12"/>
+      <text x="36" y="155" class="cardSub" opacity="0.85">3–10 days</text>
+    </g>
+
+    <!-- LAUNCH -->
+    <g transform="translate(990 0)">
+      <rect x="0" y="0" width="310" height="170" rx="20" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.14" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="6" height="170" rx="20" fill="url(#accentD)" opacity="0.95"/>
+
+      <rect x="22" y="22" width="42" height="42" rx="14" fill="url(#accentD)" opacity="0.18"/>
+      <!-- minimal “rocket” icon -->
+      <path d="M44 30c9 4 14 12 14 22-10 0-18-5-22-14 3-5 6-7 8-8z"
+            fill="none" stroke="#FFD0E6" stroke-width="2.2" stroke-linejoin="round" opacity="0.95"/>
+      <path d="M38 50l-6 6M48 56l-6 6" stroke="#FFD0E6" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+
+      <text x="22" y="92" class="cardTitle">Launch</text>
+      <text x="22" y="118" class="cardSub">Deploy, monitor, iterate</text>
+
+      <rect x="22" y="136" width="132" height="28" rx="12" fill="#FFFFFF" opacity="0.12"/>
+      <text x="36" y="155" class="cardSub" opacity="0.85">Ongoing</text>
+    </g>
+  </g>
+</svg>

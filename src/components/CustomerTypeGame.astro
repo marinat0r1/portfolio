@@ -1,0 +1,170 @@
+---
+const options = [
+  { id: "restaurant", label: "Restaurant / Bar", blurb: "Menus, bookings, local SEO, fast landing pages." },
+  { id: "contractor", label: "Contractor", blurb: "Lead gen, before/after galleries, quote forms." },
+  { id: "finance", label: "Finance", blurb: "Trust-focused design, compliance-friendly content." },
+  { id: "business", label: "Business", blurb: "Brand site, services pages, conversion funnels." },
+] as const;
+---
+
+<section class="game" aria-labelledby="game-title">
+
+  <div class="game__grid" role="list">
+    {options.map((o) => (
+      <button
+        type="button"
+        class="game__card"
+        role="listitem"
+        data-choice={o.id}
+        aria-pressed="false"
+      >
+        <div class="game__cardTitle">{o.label}</div>
+        <div class="game__cardBlurb">{o.blurb}</div>
+      </button>
+    ))}
+  </div>
+
+  <div class="game__result" hidden>
+    <div class="game__resultInner">
+      <h4 class="game__resultTitle"></h4>
+      <p class="game__resultText muted"></p>
+
+      <div class="game__actions">
+        <a class="button" data-cta href="/projects">See relevant projects</a>
+        <a class="button secondary" data-contact href="/about">Contact</a>
+        <button class="button secondary" type="button" data-reset>Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    /** @typedef {'restaurant'|'contractor'|'finance'|'business'} CustomerType */
+
+    const root = /** @type {HTMLElement | null} */ (document.currentScript?.closest(".game"));
+    if (!root) {
+      console.warn("[CustomerTypeGame] Root .game element not found.");
+    } else {
+      const cards = /** @type {HTMLButtonElement[]} */ (
+        Array.from(root.querySelectorAll("button[data-choice]"))
+      );
+
+      const result = /** @type {HTMLElement | null} */ (root.querySelector(".game__result"));
+      const resultTitle = /** @type {HTMLElement | null} */ (root.querySelector(".game__resultTitle"));
+      const resultText = /** @type {HTMLElement | null} */ (root.querySelector(".game__resultText"));
+
+      const cta = /** @type {HTMLAnchorElement | null} */ (root.querySelector("[data-cta]"));
+      const contact = /** @type {HTMLAnchorElement | null} */ (root.querySelector("[data-contact]"));
+      const resetBtn = /** @type {HTMLButtonElement | null} */ (root.querySelector("[data-reset]"));
+
+      /** @type {Record<CustomerType, { title: string; text: string }>} */
+      const copy = {
+        restaurant: {
+          title: "Restaurant / Bar",
+          text: "I’ll show examples focused on menus, bookings, Google visibility, and fast mobile performance.",
+        },
+        contractor: {
+          title: "Contractor",
+          text: "I’ll show examples focused on lead-gen, quote requests, galleries, and trust signals.",
+        },
+        finance: {
+          title: "Finance",
+          text: "I’ll show examples focused on clarity, credibility, and compliance-friendly layouts.",
+        },
+        business: {
+          title: "Business",
+          text: "I’ll show examples focused on services, positioning, and conversions.",
+        },
+      };
+
+      /** @param {string | null | undefined} v @returns {v is CustomerType} */
+      function isCustomerType(v) {
+        return v === "restaurant" || v === "contractor" || v === "finance" || v === "business";
+      }
+
+      /** @param {CustomerType} choice */
+      function applyChoice(choice) {
+        for (const btn of cards) {
+          const active = btn.dataset.choice === choice;
+          btn.classList.toggle("is-active", active);
+          btn.setAttribute("aria-pressed", String(active));
+        }
+
+        if (!result || !resultTitle || !resultText) return;
+
+        const c = copy[choice];
+        result.hidden = false;
+        resultTitle.textContent = `Great — you’re a ${c.title} customer.`;
+        resultText.textContent = c.text;
+
+        if (cta) cta.href = `/projects?type=${encodeURIComponent(choice)}`;
+        if (contact) contact.href = `/about?type=${encodeURIComponent(choice)}`;
+
+        try { localStorage.setItem("customerType", choice); } catch {}
+      }
+
+      function reset() {
+        for (const btn of cards) {
+          btn.classList.remove("is-active");
+          btn.setAttribute("aria-pressed", "false");
+        }
+        if (result) result.hidden = true;
+        try { localStorage.removeItem("customerType"); } catch {}
+      }
+
+      for (const btn of cards) {
+        btn.addEventListener("click", () => {
+          const raw = btn.dataset.choice;
+          if (!isCustomerType(raw)) return reset();
+          applyChoice(raw);
+        });
+      }
+
+      resetBtn?.addEventListener("click", reset);
+
+      try {
+        const saved = localStorage.getItem("customerType");
+        if (isCustomerType(saved)) applyChoice(saved);
+      } catch {}
+    }
+  </script>
+
+  <style>
+    .muted { color: var(--muted); }
+
+    .game__header { margin-bottom: 10px; }
+    .game__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .game__card {
+      text-align: left;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      color: var(--text);
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    .game__card:hover { transform: translateY(-2px); border-color: rgba(122, 162, 255, 0.5); }
+    .game__card.is-active {
+      border-color: rgba(122, 162, 255, 0.9);
+      background: rgba(122, 162, 255, 0.08);
+    }
+
+    .game__cardTitle { font-weight: 700; margin-bottom: 6px; }
+    .game__cardBlurb { color: var(--muted); font-size: 14px; }
+
+    .game__result { margin-top: 14px; }
+    .game__resultInner {
+      border: 1px solid var(--border);
+      background: rgba(232, 238, 252, 0.04);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .game__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  </style>
+
+</section>

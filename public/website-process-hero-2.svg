@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420" role="img" aria-label="Website creation process: Plan, Design, Build, Launch">
+  <defs>
+    <!-- Neon gradient for the flow line -->
+    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7C5CFF"/>
+      <stop offset="0.35" stop-color="#34D6FF"/>
+      <stop offset="0.7" stop-color="#45FFB1"/>
+      <stop offset="1" stop-color="#FF5BA6"/>
+    </linearGradient>
+
+    <!-- Soft glow -->
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.55 0" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Card shadow for dark backgrounds -->
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <!-- “Glass” fill -->
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Transparent background intentionally (no rect) -->
+
+  <!-- Node dots -->
+  <g filter="url(#glow)">
+    <circle cx="210" cy="210" r="9" fill="#7C5CFF"/>
+    <circle cx="540" cy="155" r="9" fill="#34D6FF"/>
+    <circle cx="860" cy="290" r="9" fill="#45FFB1"/>
+    <circle cx="1185" cy="190" r="9" fill="#FF5BA6"/>
+  </g>
+
+  <!-- Cards -->
+  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" fill="#EAF0FF">
+    <!-- Card 1: Plan -->
+    <g transform="translate(120 105)">
+      <rect x="0" y="0" width="290" height="170" rx="24" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.18" filter="url(#shadow)"/>
+      <rect x="18" y="18" width="62" height="62" rx="18" fill="#7C5CFF" opacity="0.18"/>
+      <!-- Lightbulb icon -->
+      <path d="M49 28c-10 0-18 8-18 18 0 7 4 12 9 16 2 2 3 4 3 7h12c0-3 1-5 3-7 5-4 9-9 9-16 0-10-8-18-18-18z"
+            fill="none" stroke="#CFC7FF" stroke-width="2.5" opacity="0.95"/>
+      <path d="M41 74h16M43 80h12" stroke="#CFC7FF" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+      <text x="18" y="112" font-size="22" font-weight="800">Plan</text>
+      <text x="18" y="142" font-size="14" opacity="0.78">Goals • Sitemap • Content</text>
+    </g>
+
+    <!-- Card 2: Design -->
+    <g transform="translate(430 50)">
+      <rect x="0" y="0" width="290" height="170" rx="24" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.18" filter="url(#shadow)"/>
+      <rect x="18" y="18" width="62" height="62" rx="18" fill="#34D6FF" opacity="0.18"/>
+      <!-- Pen tool icon -->
+      <path d="M40 66l22-22 10 10-22 22-14 4 4-14z" fill="none" stroke="#C8F5FF" stroke-width="2.5" stroke-linejoin="round" opacity="0.95"/>
+      <path d="M60 44l10 10" stroke="#C8F5FF" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+      <text x="18" y="112" font-size="22" font-weight="800">Design</text>
+      <text x="18" y="142" font-size="14" opacity="0.78">UI • UX • Brand</text>
+    </g>
+
+    <!-- Card 3: Build -->
+    <g transform="translate(740 185)">
+      <rect x="0" y="0" width="290" height="170" rx="24" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.18" filter="url(#shadow)"/>
+      <rect x="18" y="18" width="62" height="62" rx="18" fill="#45FFB1" opacity="0.18"/>
+      <!-- Code icon -->
+      <path d="M46 42l-14 14 14 14M58 42l14 14-14 14" fill="none" stroke="#CFFFE9" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+      <text x="18" y="112" font-size="22" font-weight="800">Build</text>
+      <text x="18" y="142" font-size="14" opacity="0.78">Components • CMS • SEO</text>
+    </g>
+
+    <!-- Card 4: Launch -->
+    <g transform="translate(1050 75)">
+      <rect x="0" y="0" width="290" height="170" rx="24" fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.18" filter="url(#shadow)"/>
+      <rect x="18" y="18" width="62" height="62" rx="18" fill="#FF5BA6" opacity="0.18"/>
+      <!-- Rocket icon -->
+      <path d="M49 30c12 6 19 17 19 31-14 0-25-7-31-19 4-7 8-11 12-12z"
+            fill="none" stroke="#FFD0E6" stroke-width="2.5" stroke-linejoin="round" opacity="0.95"/>
+      <path d="M45 56l-8 8M55 66l-8 8" stroke="#FFD0E6" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+      <text x="18" y="112" font-size="22" font-weight="800">Launch</text>
+      <text x="18" y="142" font-size="14" opacity="0.78">Deploy • Analytics • Iterate</text>
+    </g>
+  </g>
+
+  <!-- Optional small headline (delete if you want only the graphic) -->
+  <text x="120" y="35" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial"
+        font-size="28" font-weight="900" fill="#EAF0FF" opacity="0.92">
+    Website creation, simplified
+  </text>
+</svg>

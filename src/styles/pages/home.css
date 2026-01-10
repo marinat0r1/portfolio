@@ -1,0 +1,48 @@
+/* Landing page hero */
+.landing-hero {
+  position: relative;
+  min-height: calc(100vh - 60px);
+  display: grid;
+  align-items: center;
+  padding-block: 72px;
+  padding-inline: clamp(16px, 5vw, 64px);
+  border-bottom: 1px solid var(--border);
+  background: rgb(0, 0, 0);
+}
+
+.landing-hero__inner { max-width: 980px; margin: 0 auto; }
+
+.landing-hero__title {
+  margin: 0;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  font-size: clamp(52px, 9vw, 116px);
+}
+
+.landing-hero__subtitle {
+  margin: 16px 0 0;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: clamp(16px, 2vw, 19px);
+}
+
+.landing-hero__cta { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.landing-hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgb(0, 0, 0);
+  backdrop-filter: blur(8px);
+}
+
+@media (max-width: 420px) {
+  .landing-hero { padding: 56px 16px; }
+}
