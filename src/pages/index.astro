@@ -1,53 +1,43 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import CustomerTypeGame from "../components/CustomerTypeGame.astro";
+import RubiksCube from "../components/RubiksCube.astro";
 ---
 
-<BaseLayout title="YourName — Portfolio" description="Developer portfolio">
-  <section slot="fullbleed" class="landing-hero">
-    <div class="landing-hero__inner">
-      <h1 class="landing-hero__title">
-        <span class="text-color-blue" >Your</span> Website<br />Done <span class="text-color-blue">Right</span>
-      </h1>
-      <p class="landing-hero__subtitle">
-        I design and build fast, modern sites for your business.
-      </p>
-    </div>
-    <div class= "landing-hero__inner cta-buttons">
-      <a class="btn btn-primary" href="#">
-        Contact Me
-        <span class="arrow" aria-hidden="true">
-          <!-- cleaner chevron arrow -->
-          <svg viewBox="0 0 24 24" class="arrow-icon">
-            <path d="M9 6l6 6-6 6" />
-          </svg>
-        </span>
-      </a>
-      
-      <!-- TODO: Use astro components rather then css -->
-      <a class="btn btn-secondary" href="#">Go to Packages</a>
+<BaseLayout title="MH — Solving Business Complexity" description="Modern web design and development for forward-thinking businesses.">
+  <section slot="fullbleed" class="hero-section">
+    <div class="hero-content container">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          Solving <span class="text-gradient">Business Complexity</span>
+        </h1>
+        <p class="hero-subtitle">
+          I build high-performance, minimalist websites that turn complex problems into elegant digital solutions.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/services">Start a Project</a>
+          <a class="btn btn-secondary" href="/projects">View Work</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+          <RubiksCube />
+      </div>
     </div>
   </section>
 
-  <section slot="fullbleed" class="landing-hero">
-    <img
-    src="/website-process-hero-2.svg"
-    alt="From idea to live website: Plan, Design, Code, Launch"
-    width="1200"
-    height="675"
-    loading="lazy"
-  />
-  </section>
-
-  <section class="container">
-    <section class="card">
-      <h2>Who are you?</h2>
-      <CustomerTypeGame />
-    </section>
-
-    <section class="card">
-      <h2>What I do</h2>
-      <p class="muted">Websites, landing pages, performance, SEO basics, maintenance.</p>
-    </section>
+  <section class="business-value container">
+    <div class="value-grid">
+      <div class="value-card">
+        <h3>Precision Engineering</h3>
+        <p>I build with a focus on code quality, ensuring your site is maintainable, scalable, and resilient.</p>
+      </div>
+      <div class="value-card">
+        <h3>Extreme Performance</h3>
+        <p>A fast site isn't a luxury—it's a requirement. I optimize every byte for lightning-fast interactions.</p>
+      </div>
+      <div class="value-card">
+        <h3>Minimalist Design</h3>
+        <p>Clutter is the enemy of conversion. I design interfaces that are purposeful and elegantly simple.</p>
+      </div>
+    </div>
   </section>
 </BaseLayout>

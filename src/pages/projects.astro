@@ -1,35 +1,104 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const projects = [
-  {
-    title: "Project One",
-    desc: "Short description of what it does.",
-    href: "https://example.com",
-    tags: ["TypeScript", "Astro"],
-  },
-  {
-    title: "Project Two",
-    desc: "Another thing you built.",
-    href: "https://example.com",
-    tags: ["Node", "API"],
-  },
-];
 ---
 
-<BaseLayout title="Projects">
-  <h1>Projects</h1>
+<BaseLayout title="Projects — Transforming Digital Presence" description="Case studies of how I've helped businesses grow through modern web development.">
+  <div class="container section-py">
+    <header class="mb-12">
+      <h1 class="hero-title">Selected Work</h1>
+      <p class="text-secondary text-lg max-w-2xl">
+        A selection of projects where I've combined premium design with technical excellence to deliver business value.
+      </p>
+    </header>
 
-  <div class="grid">
-    {projects.map((p) => (
-      <article class="card">
-        <h2>{p.title}</h2>
-        <p>{p.desc}</p>
-        <ul class="tags">
-          {p.tags.map((t) => <li>{t}</li>)}
-        </ul>
-        <p><a href={p.href} target="_blank" rel="noreferrer">Link →</a></p>
-      </article>
-    ))}
+    <div class="projects-stack">
+      <div class="project-item glass p-12">
+        <div class="project-header">
+           <span class="tag">Case Study</span>
+           <h2>LuxeCommerce</h2>
+        </div>
+        <p class="text-secondary mb-8">
+          Reduced page load time by 60%, resulting in a 25% increase in mobile conversion rates for a boutique fashion brand.
+        </p>
+        <div class="meta">
+           <div>
+              <span>Role</span>
+              <p>Lead Developer</p>
+           </div>
+           <div>
+              <span>Outcome</span>
+              <p>+25% Revenue</p>
+           </div>
+        </div>
+        <a href="#" class="btn btn-secondary">Read Story</a>
+      </div>
+
+      <div class="project-item glass p-12 mt-8">
+        <div class="project-header">
+           <span class="tag">SaaS Design</span>
+           <h2>Nexus Dashboard</h2>
+        </div>
+        <p class="text-secondary mb-8">
+          Reimagined the user interface for a complex data analytics tool, focusing on clarity and reactive performance.
+        </p>
+        <div class="meta">
+           <div>
+              <span>Role</span>
+              <p>UI/UX Designer</p>
+           </div>
+           <div>
+              <span>Tech</span>
+              <p>React & Three.js</p>
+           </div>
+        </div>
+        <a href="#" class="btn btn-secondary">View Case Study</a>
+      </div>
+    </div>
   </div>
 </BaseLayout>
+
+<style>
+  .hero-title {
+    font-size: 4rem;
+    letter-spacing: -0.05em;
+    margin-bottom: var(--space-4);
+  }
+
+  .text-lg { font-size: 1.125rem; }
+
+  .project-item h2 {
+    font-size: 2.5rem;
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+  }
+
+  .meta {
+    display: flex;
+    gap: var(--space-12);
+    margin-bottom: var(--space-8);
+  }
+
+  .meta span {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+
+  .meta p {
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    margin-top: var(--space-1);
+  }
+
+  .p-12 { padding: 3rem; }
+  .mt-8 { margin-top: 2rem; }
+</style>

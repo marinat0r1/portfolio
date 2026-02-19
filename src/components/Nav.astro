@@ -10,10 +10,10 @@ const path = Astro.url.pathname;
 
 <header class="site-header">
   <div class="container header-inner">
-    <a class="brand" href="/">Marin-Petru Hincu</a>
+    <a class="brand" href="/">MH</a>
 
-    <nav aria-label="Primary">
-      <ul class="nav">
+    <nav aria-label="Primary" class="desktop-nav">
+      <ul class="nav-list">
         {links.map((l) => (
           <li>
             <a class={path === l.href ? "active" : ""} href={l.href}>
@@ -23,5 +23,80 @@ const path = Astro.url.pathname;
         ))}
       </ul>
     </nav>
+
+    <div class="header-actions">
+       <a href="#contact" class="btn-minimal">Contact</a>
+    </div>
   </div>
 </header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border);
+    height: 64px;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+  }
+
+  .nav-list {
+    list-style: none;
+    display: flex;
+    gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-list a {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .nav-list a:hover, .nav-list a.active {
+    color: var(--color-text-primary);
+  }
+
+  .btn-minimal {
+     font-size: 0.85rem;
+     font-weight: 600;
+     padding: 8px 16px;
+     border-radius: var(--radius-sm);
+     background: var(--color-text-primary);
+     color: var(--color-bg);
+     text-decoration: none;
+     transition: opacity 0.2s ease;
+  }
+
+  .btn-minimal:hover {
+     opacity: 0.9;
+  }
+
+  @media (max-width: 768px) {
+    .desktop-nav { display: none; }
+  }
+</style>

@@ -1,0 +1,521 @@
+---
+---
+
+<div id="rubiks-cube-container" class="rubiks-cube-container"></div>
+
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { gsap } from 'gsap';
+
+  const container = document.getElementById('rubiks-cube-container');
+  if (container) {
+    // --- RENDERER ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.8;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    container.appendChild(renderer.domElement);
+
+    // --- ORBIT CONTROLS (Resend-style interactivity) ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 2.5;
+    controls.minPolarAngle = Math.PI / 4;
+    controls.maxPolarAngle = (3 * Math.PI) / 4;
+
+    // --- STUDIO ENVIRONMENT MAP ---
+    function createStudioEnvironment(): THREE.Scene {
+      const envScene = new THREE.Scene();
+      const geo = new THREE.BoxGeometry();
+      geo.deleteAttribute('uv');
+
+      // Surround with bright panels for strong, even reflections
+      const positions = [
+        { pos: [-8, 12, 12], scale: [30, 30, 1], color: 0xffffff },   // Key
+        { pos: [12, 6, -12], scale: [25, 12, 1], color: 0x99ccff },   // Rim cool
+        { pos: [0, -14, 8], scale: [25, 25, 1], color: 0xfff0dd },    // Fill warm
+        { pos: [0, 20, 0], scale: [40, 1, 40], color: 0xeeeeff },     // Top
+        { pos: [-12, 0, -8], scale: [1, 20, 20], color: 0xe8e8e8 },   // Left
+        { pos: [12, 0, 8], scale: [1, 20, 20], color: 0xddeeff },     // Right
+        { pos: [0, 0, -15], scale: [20, 20, 1], color: 0xccccdd },    // Back
+      ];
+      positions.forEach(({ pos, scale, color }) => {
+        const panel = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, toneMapped: false }));
+        panel.scale.set(scale[0], scale[1], scale[2]);
+        panel.position.set(pos[0], pos[1], pos[2]);
+        if (scale[0] !== 1 && scale[1] !== 1) panel.lookAt(0, 0, 0);
+        envScene.add(panel);
+      });
+
+      return envScene;
+    }
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const envScene = createStudioEnvironment();
+    scene.environment = pmremGenerator.fromScene(envScene, 0.04).texture;
+    envScene.traverse((o: any) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) o.material.dispose();
+    });
+    pmremGenerator.dispose();
+
+    // --- CANVAS TEXTURE GENERATORS ---
+
+    // 1. Perforated / Dotted pattern (Resend style)
+    function createPerforatedTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, size, size);
+
+      const dotSpacing = 22;
+      const dotRadius = 4.5;
+      ctx.fillStyle = '#383838';
+
+      for (let y = dotSpacing / 2; y < size; y += dotSpacing) {
+        for (let x = dotSpacing / 2; x < size; x += dotSpacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      const map = new THREE.CanvasTexture(canvas);
+      map.colorSpace = THREE.SRGBColorSpace;
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+
+      // Clone for bump
+      const bumpCanvas = document.createElement('canvas');
+      bumpCanvas.width = size;
+      bumpCanvas.height = size;
+      const bctx = bumpCanvas.getContext('2d')!;
+      bctx.fillStyle = '#000000';
+      bctx.fillRect(0, 0, size, size);
+      bctx.fillStyle = '#ffffff';
+      for (let y = dotSpacing / 2; y < size; y += dotSpacing) {
+        for (let x = dotSpacing / 2; x < size; x += dotSpacing) {
+          bctx.beginPath();
+          bctx.arc(x, y, dotRadius + 1, 0, Math.PI * 2);
+          bctx.fill();
+        }
+      }
+      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+
+      return { map, bumpMap };
+    }
+
+    // 2. Fine mesh / grill pattern
+    function createMeshTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.fillStyle = '#080808';
+      ctx.fillRect(0, 0, size, size);
+
+      const gridSize = 14;
+      ctx.strokeStyle = '#333333';
+      ctx.lineWidth = 1.5;
+
+      for (let i = 0; i <= size; i += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, size);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(size, i);
+        ctx.stroke();
+      }
+
+      const map = new THREE.CanvasTexture(canvas);
+      map.colorSpace = THREE.SRGBColorSpace;
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+
+      // Bump
+      const bumpCanvas = document.createElement('canvas');
+      bumpCanvas.width = size;
+      bumpCanvas.height = size;
+      const bctx = bumpCanvas.getContext('2d')!;
+      bctx.fillStyle = '#000000';
+      bctx.fillRect(0, 0, size, size);
+      bctx.strokeStyle = '#aaaaaa';
+      bctx.lineWidth = 1.5;
+      for (let i = 0; i <= size; i += gridSize) {
+        bctx.beginPath();
+        bctx.moveTo(i, 0);
+        bctx.lineTo(i, size);
+        bctx.stroke();
+        bctx.beginPath();
+        bctx.moveTo(0, i);
+        bctx.lineTo(size, i);
+        bctx.stroke();
+      }
+      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+
+      return { map, bumpMap };
+    }
+
+    // 3. Brushed metal / carbon fiber texture
+    function createBrushedTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.fillStyle = '#090909';
+      ctx.fillRect(0, 0, size, size);
+
+      // Horizontal brush strokes — more visible
+      for (let y = 0; y < size; y += 2) {
+        const brightness = Math.floor(Math.random() * 30) + 18;
+        ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, y + Math.random() * 0.5);
+        ctx.lineTo(size, y + Math.random() * 0.5);
+        ctx.stroke();
+      }
+
+      const map = new THREE.CanvasTexture(canvas);
+      map.colorSpace = THREE.SRGBColorSpace;
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+
+      // Bump
+      const bumpCanvas = document.createElement('canvas');
+      bumpCanvas.width = size;
+      bumpCanvas.height = size;
+      const bctx = bumpCanvas.getContext('2d')!;
+      bctx.fillStyle = '#000000';
+      bctx.fillRect(0, 0, size, size);
+      for (let y = 0; y < size; y += 2) {
+        const val = Math.floor(Math.random() * 60) + 20;
+        bctx.strokeStyle = `rgb(${val}, ${val}, ${val})`;
+        bctx.lineWidth = 1;
+        bctx.beginPath();
+        bctx.moveTo(0, y);
+        bctx.lineTo(size, y);
+        bctx.stroke();
+      }
+      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+
+      return { map, bumpMap };
+    }
+
+    // --- MATERIALS (4 Resend-style types) ---
+
+    // Type 1: Polished glossy black
+    const polishedMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x111111,
+      roughness: 0.03,
+      metalness: 0.15,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.03,
+      reflectivity: 1.0,
+      envMapIntensity: 2.0,
+    });
+
+    // Type 2: Perforated / dotted
+    const perfTextures = createPerforatedTexture();
+    const perforatedMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x141414,
+      map: perfTextures.map,
+      bumpMap: perfTextures.bumpMap,
+      bumpScale: 0.06,
+      roughness: 0.5,
+      metalness: 0.4,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.2,
+      envMapIntensity: 1.2,
+    });
+
+    // Type 3: Fine mesh / grill
+    const meshTextures = createMeshTexture();
+    const meshMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x141414,
+      map: meshTextures.map,
+      bumpMap: meshTextures.bumpMap,
+      bumpScale: 0.05,
+      roughness: 0.35,
+      metalness: 0.8,
+      clearcoat: 0.7,
+      clearcoatRoughness: 0.15,
+      envMapIntensity: 1.5,
+    });
+
+    // Type 4: Brushed metal / carbon fiber
+    const brushedTextures = createBrushedTexture();
+    const brushedMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x121212,
+      map: brushedTextures.map,
+      bumpMap: brushedTextures.bumpMap,
+      bumpScale: 0.04,
+      roughness: 0.3,
+      metalness: 0.95,
+      clearcoat: 0.4,
+      clearcoatRoughness: 0.3,
+      envMapIntensity: 1.6,
+    });
+
+    const materialPool = [polishedMaterial, perforatedMaterial, meshMaterial, brushedMaterial];
+
+    // --- GEOMETRY (Rounded sub-cubes) ---
+    function createRoundedBox(size: number, radius: number, segments: number): THREE.ExtrudeGeometry {
+      const shape = new THREE.Shape();
+      // Shrink 2D shape so bevel expansion yields correct final size
+      // Final width  = innerSize + 2*bevelSize = (size-2r) + 2r = size ✓
+      // Final height = innerSize + 2*bevelSize = (size-2r) + 2r = size ✓
+      // Final depth  = depth + 2*bevelThickness = (size-2r) + 2r = size ✓
+      const inner = size - 2 * radius;
+      const r = radius;
+
+      shape.moveTo(-inner / 2, -inner / 2 + r);
+      shape.lineTo(-inner / 2, inner / 2 - r);
+      shape.absarc(-inner / 2 + r, inner / 2 - r, r, Math.PI, Math.PI / 2, true);
+      shape.lineTo(inner / 2 - r, inner / 2);
+      shape.absarc(inner / 2 - r, inner / 2 - r, r, Math.PI / 2, 0, true);
+      shape.lineTo(inner / 2, -inner / 2 + r);
+      shape.absarc(inner / 2 - r, -inner / 2 + r, r, 0, -Math.PI / 2, true);
+      shape.lineTo(-inner / 2 + r, -inner / 2);
+      shape.absarc(-inner / 2 + r, -inner / 2 + r, r, -Math.PI / 2, -Math.PI, true);
+
+      const extrudeSettings = {
+        depth: inner,
+        bevelEnabled: true,
+        bevelSegments: segments * 2,
+        steps: 1,
+        bevelSize: r,
+        bevelThickness: r,
+        curveSegments: segments * 2,
+      };
+      const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+      geo.center();
+      return geo;
+    }
+
+    const subCubeSize = 0.92;
+    const bevelRadius = 0.12;
+    const segments = 8;
+    const offset = subCubeSize + 0.08;
+
+    const group = new THREE.Group();
+    const allCubes: THREE.Mesh[] = [];
+
+    for (let x = -1; x <= 1; x++) {
+      for (let y = -1; y <= 1; y++) {
+        for (let z = -1; z <= 1; z++) {
+          const geometry = createRoundedBox(subCubeSize, bevelRadius, segments);
+
+          // Assign random material per face (6 faces)
+          const faceMaterials: THREE.MeshPhysicalMaterial[] = [];
+          for (let i = 0; i < 6; i++) {
+            faceMaterials.push(materialPool[Math.floor(Math.random() * materialPool.length)]);
+          }
+
+          const cube = new THREE.Mesh(geometry, faceMaterials);
+          cube.position.set(x * offset, y * offset, z * offset);
+          group.add(cube);
+          allCubes.push(cube);
+        }
+      }
+    }
+    scene.add(group);
+
+    // --- LIGHTING (Bright studio — no dark spots) ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    // Key light – bright from upper-left
+    const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
+    keyLight.position.set(-6, 10, 6);
+    scene.add(keyLight);
+
+    // Rim light – cool blue accent from behind
+    const rimLight = new THREE.SpotLight(0x8ab4f8, 12.0);
+    rimLight.position.set(10, 5, -10);
+    rimLight.lookAt(0, 0, 0);
+    rimLight.angle = Math.PI / 3;
+    rimLight.penumbra = 0.8;
+    scene.add(rimLight);
+
+    // Fill light – warm from front
+    const fillLight = new THREE.DirectionalLight(0xfff5ee, 2.0);
+    fillLight.position.set(0, 0, 10);
+    scene.add(fillLight);
+
+    // Back fill – prevents pure black shadows
+    const backFill = new THREE.DirectionalLight(0xddddff, 1.5);
+    backFill.position.set(0, 0, -10);
+    scene.add(backFill);
+
+    // Bottom fill – illuminates underside
+    const bottomLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+    bottomLight.position.set(0, -10, 0);
+    scene.add(bottomLight);
+
+    // Top highlight for edge definition
+    const topLight = new THREE.PointLight(0xffffff, 3.0, 40);
+    topLight.position.set(0, 14, 0);
+    scene.add(topLight);
+
+    // Side fill – prevents dark left/right
+    const leftFill = new THREE.DirectionalLight(0xeeeeff, 1.0);
+    leftFill.position.set(-10, 2, 0);
+    scene.add(leftFill);
+
+    const rightFill = new THREE.DirectionalLight(0xeeeeff, 1.0);
+    rightFill.position.set(10, 2, 0);
+    scene.add(rightFill);
+
+    // Camera position (Resend angle – looking slightly down from upper-right)
+    camera.position.set(5.5, 4, 7);
+    camera.lookAt(0, 0, 0);
+    controls.update();
+
+    // --- SLICE ANIMATION ---
+    let isAnimating = false;
+    const getCubesInSlice = (axis: 'x' | 'y' | 'z', index: number): THREE.Mesh[] => {
+      return allCubes.filter((cube) => {
+        const pos = cube.position[axis];
+        const quantized = Math.round(pos / offset);
+        return quantized === index;
+      });
+    };
+
+    const rotateSlice = () => {
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const axes: Array<'x' | 'y' | 'z'> = ['x', 'y', 'z'];
+      const axis = axes[Math.floor(Math.random() * 3)];
+      const index = Math.floor(Math.random() * 3) - 1;
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const angle = (Math.PI / 2) * direction;
+
+      const cubesToRotate = getCubesInSlice(axis, index);
+      const pivot = new THREE.Object3D();
+      pivot.rotation.set(0, 0, 0);
+      group.add(pivot);
+
+      cubesToRotate.forEach((cube) => {
+        pivot.attach(cube);
+      });
+
+      gsap.to(pivot.rotation, {
+        [axis]: angle,
+        duration: 1.0,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          for (let i = cubesToRotate.length - 1; i >= 0; i--) {
+            group.attach(cubesToRotate[i]);
+          }
+          cubesToRotate.forEach((cube) => {
+            cube.position.x = Math.round(cube.position.x / offset) * offset;
+            cube.position.y = Math.round(cube.position.y / offset) * offset;
+            cube.position.z = Math.round(cube.position.z / offset) * offset;
+            cube.rotation.x = Math.round(cube.rotation.x / (Math.PI / 2)) * (Math.PI / 2);
+            cube.rotation.y = Math.round(cube.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+            cube.rotation.z = Math.round(cube.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
+            cube.updateMatrix();
+          });
+          group.remove(pivot);
+          isAnimating = false;
+
+          // Short delay between slices for snappy feel
+          const nextDelay = 400 + Math.random() * 800;
+          setTimeout(rotateSlice, nextDelay);
+        },
+      });
+    };
+
+    // Start slice animation quickly
+    setTimeout(rotateSlice, 1200);
+
+    // --- RENDER LOOP ---
+    const animate = () => {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    };
+
+    // --- RESIZE ---
+    const handleResize = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+
+    window.addEventListener('resize', handleResize);
+    animate();
+
+    // --- ENTRY ANIMATION ---
+    container.classList.add('animate-in');
+  }
+</script>
+
+<style>
+  .rubiks-cube-container {
+    width: 100%;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: none;
+    cursor: grab;
+  }
+
+  .rubiks-cube-container:active {
+    cursor: grabbing;
+  }
+
+  .rubiks-cube-container.animate-in {
+    animation: scaleInFade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes scaleInFade {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .rubiks-cube-container {
+      height: 400px;
+    }
+  }
+</style>

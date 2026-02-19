@@ -1,8 +1,39 @@
 :root {
-  --bg: #000000;
-  --panel: #000000;
-  --text: #e8eefc;
-  --muted: #a9b4cc;
-  --border: rgba(232, 238, 252, 0.12);
-  --accent: #7aa2ff;
+  /* Colors - Resend inspired monochromatic */
+  --color-bg: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.15);
+  --color-accent: #ffffff;
+  --color-accent-soft: rgba(255, 255, 255, 0.05);
+
+  /* Spacing - 8px based grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+  --space-10: 80px;
+  --space-12: 96px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Legacy mapping for transition */
+  --bg-color: var(--color-bg);
+  --bg-accent: var(--color-bg-secondary);
+  --panel-bg: var(--color-bg-secondary);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --border-color: var(--color-border);
+  --accent-primary: var(--color-accent);
 }

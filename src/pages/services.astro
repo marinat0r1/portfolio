@@ -2,11 +2,186 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout>
-    <h1>Service Description</h1>
-    <p>
-        Packaged Services
-    </p>
-    <hr class="separator"/>
-    <p> Individual Services</p>
+<BaseLayout title="Services — High-Performance Web Solutions" description="Professional web design and development services.">
+  <div class="container section-py">
+    <header class="text-left mb-16">
+      <h1 class="services-title">Building for <span class="text-gradient">Performance</span></h1>
+      <p class="text-secondary text-lg max-w-2xl">
+        I engineer digital tools designed to solve high-impact business problems. Focused on technical excellence and minimalist design.
+      </p>
+    </header>
+
+    <div class="services-list">
+      <div class="service-item glass">
+        <div class="service-content">
+          <div class="service-main">
+            <span class="service-badge">Core Service</span>
+            <h2>Landing Pages & Converters</h2>
+            <p>
+              High-performance single-page experiences optimized for extreme speed and psychological conversion. Built with Astro and served from the edge.
+            </p>
+            <ul class="service-points">
+               <li>Edge-Rendered for speed</li>
+               <li>A/B Testing Integration</li>
+               <li>Optimized Lead Capture</li>
+            </ul>
+          </div>
+          <div class="service-visual">
+             <div class="visual-box">🚀</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-item glass">
+        <div class="service-content">
+          <div class="service-main">
+            <span class="service-badge">Business Solution</span>
+            <h2>Premium Brand Hubs</h2>
+            <p>
+              Scalable, authority-building websites for growing businesses. We establish trust through clean design and technical reliability.
+            </p>
+            <ul class="service-points">
+               <li>Full CMS Integration</li>
+               <li>Technical SEO Excellence</li>
+               <li>Scalable Architecture</li>
+            </ul>
+          </div>
+          <div class="service-visual">
+             <div class="visual-box">🏢</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-item glass">
+        <div class="service-content">
+          <div class="service-main">
+            <span class="service-badge">Optimization</span>
+            <h2>Site Performance & Audit</h2>
+            <p>
+              Transform your existing site into a high-speed asset. We fix technical debt, optimize assets, and ensure perfect Core Web Vitals.
+            </p>
+            <ul class="service-points">
+               <li>Performance Bottleneck Cleanup</li>
+               <li>Accessibility Audit & Fix</li>
+               <li>Lighthouse Score Perfection</li>
+            </ul>
+          </div>
+          <div class="service-visual">
+             <div class="visual-box">🔧</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="cta-banner mt-16">
+       <div class="glass p-12 text-center">
+          <h2 class="text-3xl font-bold mb-4">Ready to optimize your presence?</h2>
+          <p class="text-secondary mb-10">Let's discuss how technical excellence can drive your business metrics.</p>
+          <a href="mailto:hincum@gmail.com" class="btn btn-primary">Book Consultation</a>
+       </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .services-title {
+    font-size: clamp(3rem, 6vw, 5rem);
+    letter-spacing: -0.05em;
+    margin-bottom: var(--space-4);
+    font-weight: 700;
+  }
+
+  .text-lg { font-size: 1.25rem; }
+
+  .services-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .service-item {
+    padding: var(--space-10);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .service-item:hover {
+     border-color: var(--color-border-hover);
+     background: rgba(255, 255, 255, 0.01);
+  }
+
+  .service-content {
+     display: grid;
+     grid-template-columns: 1fr 300px;
+     gap: var(--space-10);
+     align-items: center;
+  }
+
+  .service-main h2 {
+    font-size: 2.25rem;
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-6);
+    letter-spacing: -0.03em;
+  }
+
+  .service-main p {
+    color: var(--color-text-secondary);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-8);
+    max-width: 600px;
+  }
+
+  .service-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+  }
+
+  .service-points {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  .service-points li {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    padding-left: 20px;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .service-points li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--color-text-muted);
+  }
+
+  .visual-box {
+    width: 300px;
+    height: 200px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: grid;
+    place-items: center;
+    font-size: 4rem;
+  }
+
+  .p-12 { padding: 3.5rem; }
+  .mt-16 { margin-top: 4rem; }
+  .mb-10 { margin-bottom: 2.5rem; }
+  .text-3xl { font-size: 2rem; }
+
+  @media (max-width: 1024px) {
+    .service-content { grid-template-columns: 1fr; }
+    .service-visual { display: none; }
+    .service-item { padding: var(--space-8); }
+  }
+</style>
