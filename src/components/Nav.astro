@@ -97,6 +97,30 @@ const path = Astro.url.pathname;
   }
 
   @media (max-width: 768px) {
-    .desktop-nav { display: none; }
+    .site-header {
+      height: auto;
+      padding: var(--space-3) 0;
+    }
+    .header-inner {
+      flex-wrap: wrap;
+    }
+    .desktop-nav { 
+      order: 3;
+      width: 100%;
+      margin-top: var(--space-4);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .desktop-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .nav-list {
+      gap: var(--space-6);
+      width: max-content;
+    }
+    .header-actions {
+      margin-left: auto;
+    }
   }
 </style>

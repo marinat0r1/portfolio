@@ -29,7 +29,7 @@
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 2.5;
+    controls.autoRotateSpeed = 4.0; // Faster overall rotation
     controls.minPolarAngle = Math.PI / 4;
     controls.maxPolarAngle = (3 * Math.PI) / 4;
 
@@ -324,7 +324,13 @@
     const segments = 8;
     const offset = subCubeSize + 0.08;
 
+    // We use a nested structure: 
+    // masterGroup rotates the entire cube smoothly & independently 
+    // group holds all the individual cubes and is where the slice animations happen
+    const masterGroup = new THREE.Group();
     const group = new THREE.Group();
+    masterGroup.add(group);
+    
     const allCubes: THREE.Mesh[] = [];
 
     for (let x = -1; x <= 1; x++) {
@@ -345,7 +351,7 @@
         }
       }
     }
-    scene.add(group);
+    scene.add(masterGroup);
 
     // --- LIGHTING (Bright studio — no dark spots) ---
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -394,12 +400,50 @@
     scene.add(rightFill);
 
     // Camera position (Resend angle – looking slightly down from upper-right)
-    camera.position.set(5.5, 4, 7);
+    // Moved slightly further back than original to prevent clipping during slice animation
+    camera.position.set(6.5, 4.5, 8.5);
     camera.lookAt(0, 0, 0);
-    controls.update();
+    // --- ANIMATION LOGIC (PROFESSIONAL CFOP ALGORITHMS) ---
+    // Standard Notation Mapping
+    // Axis: x=(R/L), y=(U/D), z=(F/B)
+    // Index: 1=(R,U,F), -1=(L,D,B)
+    // Direction: 1=counter-clockwise (relative to axis), -1=clockwise
+    type Move = { axis: 'x' | 'y' | 'z', index: number, dir: number, steps: number };
+    
+    const notationMap: Record<string, Move> = {
+      'U':  { axis: 'y', index:  1, dir: -1, steps: 1 },
+      "U'": { axis: 'y', index:  1, dir:  1, steps: 1 },
+      'U2': { axis: 'y', index:  1, dir: -1, steps: 2 },
+      'D':  { axis: 'y', index: -1, dir:  1, steps: 1 },
+      "D'": { axis: 'y', index: -1, dir: -1, steps: 1 },
+      'D2': { axis: 'y', index: -1, dir:  1, steps: 2 },
+      'R':  { axis: 'x', index:  1, dir: -1, steps: 1 },
+      "R'": { axis: 'x', index:  1, dir:  1, steps: 1 },
+      'R2': { axis: 'x', index:  1, dir: -1, steps: 2 },
+      'L':  { axis: 'x', index: -1, dir:  1, steps: 1 },
+      "L'": { axis: 'x', index: -1, dir: -1, steps: 1 },
+      'L2': { axis: 'x', index: -1, dir:  1, steps: 2 },
+      'F':  { axis: 'z', index:  1, dir: -1, steps: 1 },
+      "F'": { axis: 'z', index:  1, dir:  1, steps: 1 },
+      'F2': { axis: 'z', index:  1, dir: -1, steps: 2 },
+      'B':  { axis: 'z', index: -1, dir:  1, steps: 1 },
+      "B'": { axis: 'z', index: -1, dir: -1, steps: 1 },
+      'B2': { axis: 'z', index: -1, dir:  1, steps: 2 },
+    };
 
-    // --- SLICE ANIMATION ---
-    let isAnimating = false;
+    // Professional Speedsolving Algorithms (CFOP OLL & PLL)
+    const algorithms = [
+      "R U R' U' R' F R2 U' R' U' R U R' F'", // T-Perm (Popular PLL)
+      "R U R' U R U2 R'",                     // Sune (Classic OLL)
+      "R U R' F' R U R' U' R' F R2 U' R' U'", // J-Perm (PLL)
+      "R2 U R U R' U' R' U' R' U R'",         // U-Perm (PLL)
+      "F R U R' U' F'"                        // Line OLL
+    ];
+
+    let currentAlgorithmIndex = 0;
+    let currentMoveSequence: string[] = [];
+    let isSliceAnimating = false;
+
     const getCubesInSlice = (axis: 'x' | 'y' | 'z', index: number): THREE.Mesh[] => {
       return allCubes.filter((cube) => {
         const pos = cube.position[axis];
@@ -408,34 +452,59 @@
       });
     };
 
-    const rotateSlice = () => {
-      if (isAnimating) return;
-      isAnimating = true;
+    const loadNextAlgorithm = () => {
+      const algStr = algorithms[currentAlgorithmIndex];
+      // Split by spaces, removing any grouping brackets
+      currentMoveSequence = algStr.replace(/[()]/g, '').split(' ').filter(m => m.length > 0);
+      
+      currentAlgorithmIndex = (currentAlgorithmIndex + 1) % algorithms.length;
+    };
 
-      const axes: Array<'x' | 'y' | 'z'> = ['x', 'y', 'z'];
-      const axis = axes[Math.floor(Math.random() * 3)];
-      const index = Math.floor(Math.random() * 3) - 1;
-      const direction = Math.random() > 0.5 ? 1 : -1;
-      const angle = (Math.PI / 2) * direction;
+    // 1. Professional algorithm sequencer
+    const executeNextMove = () => {
+      if (isSliceAnimating) return;
 
-      const cubesToRotate = getCubesInSlice(axis, index);
-      const pivot = new THREE.Object3D();
-      pivot.rotation.set(0, 0, 0);
-      group.add(pivot);
+      if (currentMoveSequence.length === 0) {
+        // Longer pause between full algorithms so they can be visually digested
+        loadNextAlgorithm();
+        setTimeout(executeNextMove, 2000); 
+        return;
+      }
 
-      cubesToRotate.forEach((cube) => {
-        pivot.attach(cube);
+      isSliceAnimating = true;
+      const moveStr = currentMoveSequence.shift()!;
+      const move = notationMap[moveStr];
+
+      if (!move) {
+        // Skip unknown moves
+        isSliceAnimating = false;
+        executeNextMove();
+        return;
+      }
+      
+      const sliceAngle = (Math.PI / 2) * move.dir * move.steps;
+      // Smoother, visually pleasing turn speed (not hyper-fast)
+      const sliceDuration = 0.6 + (move.steps - 1) * 0.25; 
+
+      const sliceCubes = getCubesInSlice(move.axis, move.index);
+      
+      const slicePivot = new THREE.Object3D();
+      slicePivot.rotation.set(0, 0, 0);
+      group.add(slicePivot);
+
+      sliceCubes.forEach((cube) => {
+        slicePivot.attach(cube);
       });
 
-      gsap.to(pivot.rotation, {
-        [axis]: angle,
-        duration: 1.0,
+      gsap.to(slicePivot.rotation, {
+        [move.axis]: sliceAngle,
+        duration: sliceDuration,
         ease: 'power2.inOut',
         onComplete: () => {
-          for (let i = cubesToRotate.length - 1; i >= 0; i--) {
-            group.attach(cubesToRotate[i]);
+          for (let i = sliceCubes.length - 1; i >= 0; i--) {
+            group.attach(sliceCubes[i]);
           }
-          cubesToRotate.forEach((cube) => {
+          sliceCubes.forEach((cube) => {
             cube.position.x = Math.round(cube.position.x / offset) * offset;
             cube.position.y = Math.round(cube.position.y / offset) * offset;
             cube.position.z = Math.round(cube.position.z / offset) * offset;
@@ -444,18 +513,38 @@
             cube.rotation.z = Math.round(cube.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
             cube.updateMatrix();
           });
-          group.remove(pivot);
-          isAnimating = false;
-
-          // Short delay between slices for snappy feel
-          const nextDelay = 400 + Math.random() * 800;
-          setTimeout(rotateSlice, nextDelay);
+          group.remove(slicePivot);
+          
+          isSliceAnimating = false;
+          // Noticeable relaxed delay between moves in the sequence to follow the flow smoothly
+          const nextDelay = 250 + Math.random() * 100;
+          setTimeout(executeNextMove, nextDelay);
         },
       });
     };
 
-    // Start slice animation quickly
-    setTimeout(rotateSlice, 1200);
+    // 2. Continuous Organic Whole-Cube Rotation (Rotates the master wrapper independently)
+    const driftWholeCube = () => {
+      // Pick random angles slightly offset to keep it drifting playfully
+      const targetX = masterGroup.rotation.x + (Math.random() - 0.5) * Math.PI;
+      const targetY = masterGroup.rotation.y + (Math.random() - 0.5) * Math.PI;
+      const targetZ = masterGroup.rotation.z + (Math.random() - 0.5) * Math.PI * 0.3; // keep Z drift subtle
+      
+      const duration = 4.0 + Math.random() * 3.0; // Very slow and smooth
+
+      gsap.to(masterGroup.rotation, {
+        x: targetX,
+        y: targetY,
+        z: targetZ,
+        duration: duration,
+        ease: 'sine.inOut', // Super soft drifting ease
+        onComplete: driftWholeCube // Loop infinitely
+      });
+    };
+
+    // Start loops independently
+    setTimeout(executeNextMove, 800);
+    setTimeout(driftWholeCube, 100);
 
     // --- RENDER LOOP ---
     const animate = () => {
@@ -492,6 +581,10 @@
     transform: scale(0.9);
     transition: none;
     cursor: grab;
+    /* Prevent selection highlight / bounding box on click/drag */
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .rubiks-cube-container:active {

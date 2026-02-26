@@ -1,104 +1,426 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Extracting project data into an array for cleaner HTML and easier extensibility
+const projects = [
+  {
+    tag: "Case Study",
+    title: "LuxeCommerce",
+    description: "Reduced page load time by 60%, resulting in a 25% increase in mobile conversion rates for a boutique fashion brand.",
+    meta: [
+      { label: "Role", value: "Lead Developer" },
+      { label: "Outcome", value: "+25% Revenue" }
+    ],
+    linkText: "Read Story",
+    linkUrl: "#",
+    mockupClass: "mockup-luxe",
+    mockupHtml: `
+      <div class="mock-device">
+        <div class="mock-nav">
+           <div class="mock-logo"></div>
+           <div class="mock-menu"></div>
+        </div>
+        <div class="mock-img"></div>
+        <div class="mock-prod-title"></div>
+        <div class="mock-prod-price"></div>
+        <div class="mock-add-btn"></div>
+      </div>
+    `
+  },
+  {
+    tag: "SaaS Design",
+    title: "Nexus Dashboard",
+    description: "Reimagined the user interface for a complex data analytics tool, focusing on clarity and reactive performance.",
+    meta: [
+       { label: "Role", value: "UI/UX Designer" },
+       { label: "Tech", value: "React & Three.js" }
+    ],
+    linkText: "View Case Study",
+    linkUrl: "#",
+    mockupClass: "mockup-nexus",
+    mockupHtml: `
+      <div class="mock-sidebar">
+        <div class="mock-logo"></div>
+        <div class="mock-nav-items">
+          <div class="mock-nav-item active"></div>
+          <div class="mock-nav-item"></div>
+          <div class="mock-nav-item"></div>
+        </div>
+      </div>
+      <div class="mock-main">
+        <div class="mock-topbar">
+           <div class="mock-search"></div>
+           <div class="mock-avatar"></div>
+        </div>
+        <div class="mock-content">
+           <div class="mock-widget large">
+              <div class="mock-chart-line"></div>
+           </div>
+           <div class="mock-widget-row">
+              <div class="mock-widget small"></div>
+              <div class="mock-widget small"></div>
+           </div>
+        </div>
+      </div>
+    `
+  }
+];
 ---
 
 <BaseLayout title="Projects — Transforming Digital Presence" description="Case studies of how I've helped businesses grow through modern web development.">
   <div class="container section-py">
-    <header class="mb-12">
+    <!-- Header Section -->
+    <header class="mb-16">
       <h1 class="hero-title">Selected Work</h1>
       <p class="text-secondary text-lg max-w-2xl">
         A selection of projects where I've combined premium design with technical excellence to deliver business value.
       </p>
     </header>
 
+    <!-- Projects Stack -->
     <div class="projects-stack">
-      <div class="project-item glass p-12">
-        <div class="project-header">
-           <span class="tag">Case Study</span>
-           <h2>LuxeCommerce</h2>
+      {projects.map((project, index) => (
+        <div class={`project-item glass ${index > 0 ? 'mt-8' : ''}`}>
+          <div class="project-content">
+            <!-- Text Content -->
+            <div class="project-main">
+              <div class="project-header">
+                 <span class="tag">{project.tag}</span>
+                 <h2>{project.title}</h2>
+              </div>
+              <p class="text-secondary mb-8 description">
+                {project.description}
+              </p>
+              <div class="meta">
+                 {project.meta.map((m) => (
+                   <div>
+                      <span>{m.label}</span>
+                      <p>{m.value}</p>
+                   </div>
+                 ))}
+              </div>
+              <a href={project.linkUrl} class="btn btn-secondary mt-4">{project.linkText}</a>
+            </div>
+            
+            <!-- Visual Mockup -->
+            <div class="project-visual">
+               <div class={`visual-box ${project.mockupClass}`} set:html={project.mockupHtml} />
+            </div>
+          </div>
         </div>
-        <p class="text-secondary mb-8">
-          Reduced page load time by 60%, resulting in a 25% increase in mobile conversion rates for a boutique fashion brand.
-        </p>
-        <div class="meta">
-           <div>
-              <span>Role</span>
-              <p>Lead Developer</p>
-           </div>
-           <div>
-              <span>Outcome</span>
-              <p>+25% Revenue</p>
-           </div>
-        </div>
-        <a href="#" class="btn btn-secondary">Read Story</a>
-      </div>
-
-      <div class="project-item glass p-12 mt-8">
-        <div class="project-header">
-           <span class="tag">SaaS Design</span>
-           <h2>Nexus Dashboard</h2>
-        </div>
-        <p class="text-secondary mb-8">
-          Reimagined the user interface for a complex data analytics tool, focusing on clarity and reactive performance.
-        </p>
-        <div class="meta">
-           <div>
-              <span>Role</span>
-              <p>UI/UX Designer</p>
-           </div>
-           <div>
-              <span>Tech</span>
-              <p>React & Three.js</p>
-           </div>
-        </div>
-        <a href="#" class="btn btn-secondary">View Case Study</a>
-      </div>
+      ))}
     </div>
   </div>
 </BaseLayout>
 
 <style>
+  /* --- Typography & Header --- */
   .hero-title {
-    font-size: 4rem;
+    font-size: clamp(3rem, 5vw, 4.5rem);
     letter-spacing: -0.05em;
     margin-bottom: var(--space-4);
+    font-weight: 700;
   }
 
-  .text-lg { font-size: 1.125rem; }
+  .text-lg { font-size: 1.15rem; line-height: 1.6; }
 
-  .project-item h2 {
-    font-size: 2.5rem;
+  /* --- Layout & Spacing --- */
+  .projects-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  /* --- Project Item Container --- */
+  .project-item {
+    padding: var(--space-10);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.01);
+    transition: border-color 0.3s ease;
+  }
+
+  .project-item:hover {
+    border-color: var(--color-border-hover);
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  .project-content {
+    display: grid;
+    /* Side-by-side layout giving text 1fr and mockups slightly more space if needed, 
+       but balanced 1:1 works great for projects */
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  /* --- Text Info Styling --- */
+  .project-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: var(--space-6);
+  }
+
+  .project-header h2 {
+    font-size: clamp(2rem, 3vw, 2.75rem);
     margin-top: var(--space-2);
     margin-bottom: var(--space-6);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
   }
 
   .tag {
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     color: var(--color-text-muted);
   }
 
+  .description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  /* --- Metadata Labels --- */
   .meta {
     display: flex;
     gap: var(--space-12);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
   }
 
   .meta span {
     font-size: 0.75rem;
     text-transform: uppercase;
     color: var(--color-text-muted);
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.05em;
   }
 
   .meta p {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--color-text-primary);
     margin-top: var(--space-1);
+    font-weight: 500;
   }
 
+  /* --- Visual Box Formatting --- */
+  .project-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    perspective: 1200px; /* 3D effect container */
+  }
+
+  .visual-box {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 16 / 10;
+    /* Premium dark gradient */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(10, 10, 10, 1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-xl);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.06);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+  }
+
+  .project-item:hover .visual-box {
+    border-color: rgba(255, 255, 255, 0.15);
+    /* Subtle hover pop and rotation */
+    transform: translateY(-6px) scale(1.02) rotateY(-1deg) rotateX(2deg);
+  }
+
+  /* --- 1. LuxeCommerce Mockup (Mobile Device) --- */
+  :global(.mockup-luxe) {
+    align-items: flex-end; /* Pin to bottom */
+    justify-content: center;
+    padding-top: var(--space-8);
+  }
+  :global(.mock-device) {
+    width: 220px;
+    height: 100%;
+    background: #0f0f0f;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  }
+  :global(.mock-device .mock-nav) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  :global(.mock-device .mock-logo) {
+    width: 40px; height: 12px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 2px;
+  }
+  :global(.mock-device .mock-menu) {
+    width: 20px; height: 2px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 1px;
+    position: relative;
+  }
+  :global(.mock-device .mock-menu::after) {
+    content: ''; position: absolute; top: 6px; width: 14px; right: 0; height: 2px;
+    background: rgba(255,255,255,0.5); border-radius: 1px;
+  }
+  :global(.mock-device .mock-img) {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px dashed rgba(255,255,255,0.1);
+  }
+  :global(.mock-device .mock-prod-title) {
+    width: 70%; height: 10px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+  :global(.mock-device .mock-prod-price) {
+    width: 30%; height: 10px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+  :global(.mock-device .mock-add-btn) {
+    width: 100%; height: 36px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    margin-top: auto;
+  }
+
+  /* --- 2. Nexus Dashboard Mockup --- */
+  :global(.mockup-nexus) {
+    flex-direction: row;
+    padding: 1px; /* To let sidebar touch edge */
+  }
+  :global(.mockup-nexus .mock-sidebar) {
+    width: 80px;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 24px;
+  }
+  :global(.mockup-nexus .mock-logo) {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  :global(.mockup-nexus .mock-nav-items) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+  }
+  :global(.mockup-nexus .mock-nav-item) {
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+  }
+  :global(.mockup-nexus .mock-nav-item.active) {
+    background: rgba(255,255,255,0.2);
+    border-left: 2px solid #fff;
+  }
+  :global(.mockup-nexus .mock-main) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  :global(.mockup-nexus .mock-topbar) {
+    height: 50px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  :global(.mockup-nexus .mock-search) {
+    width: 120px; height: 16px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+  }
+  :global(.mockup-nexus .mock-avatar) {
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  :global(.mockup-nexus .mock-content) {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+  }
+  :global(.mockup-nexus .mock-widget) {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+  }
+  :global(.mockup-nexus .mock-widget.large) {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    align-items: flex-end;
+  }
+  :global(.mockup-nexus .mock-chart-line) {
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    border-top: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px 4px 0 0;
+    clip-path: polygon(0 60%, 20% 30%, 40% 50%, 60% 10%, 80% 40%, 100% 0, 100% 100%, 0 100%);
+  }
+  :global(.mockup-nexus .mock-widget-row) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: 60px;
+  }
+
+  /* Utility Spacing */
+  .mb-16 { margin-bottom: 4rem; }
+  .mb-8 { margin-bottom: 2rem; }
+  .mt-4 { margin-top: 1rem; }
   .p-12 { padding: 3rem; }
   .mt-8 { margin-top: 2rem; }
+
+  /* --- Responsive Design --- */
+  @media (max-width: 1024px) {
+    .project-content { 
+      grid-template-columns: 1fr; 
+      gap: var(--space-8);
+    }
+    .project-main {
+      padding-right: 0;
+    }
+    /* Keep mockups visible on mobile but adapted */
+    .visual-box {
+      max-width: 100%;
+      height: 300px;
+      aspect-ratio: auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .project-item { padding: var(--space-6); }
+    .project-header h2 { font-size: 2.25rem; }
+  }
 </style>

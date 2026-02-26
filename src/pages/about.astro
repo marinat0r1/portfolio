@@ -1,5 +1,11 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Core philosophies of the developer extracted for consistency
+const philosophies = [
+  { title: "Strategy First", text: "Every line of code serves a business objective." },
+  { title: "Excellence", text: "Fast, secure, and accessible by default." }
+];
 ---
 
 <BaseLayout title="About — The Vision Behind the Code" description="Learn about my philosophy of digital excellence and how I help businesses succeed online.">
@@ -14,15 +20,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           With a background in performance-driven development and user-centric design, I specialize in bridging the gap between complex technology and business goals.
         </p>
         
-        <div class="philosophy-cards grid grid-cols-2 gap-4">
-          <div class="p-6 glass">
-            <h3>Strategy First</h3>
-            <p class="text-muted">Every line of code serves a business objective.</p>
-          </div>
-          <div class="p-6 glass">
-            <h3>Excellence</h3>
-            <p class="text-muted">Fast, secure, and accessible by default.</p>
-          </div>
+        <!-- Development Philosophy Cards -->
+        <div class="philosophy-cards">
+          {philosophies.map((p) => (
+            <div class="p-6 glass">
+              <h3>{p.title}</h3>
+              <p class="text-muted">{p.text}</p>
+            </div>
+          ))}
         </div>
 
         <section id="contact" class="glass p-10 mt-12 border-white/10">
@@ -78,8 +83,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   .mb-12 { margin-bottom: 3rem; }
   .mt-12 { margin-top: 3rem; }
 
+  /* --- Responive Grid for Philosophies --- */
+  .philosophy-cards {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: var(--space-4);
+  }
+
   @media (max-width: 968px) {
     .about-grid { grid-template-columns: 1fr; }
     .about-visual { order: -1; max-width: 300px; margin-inline: auto; }
+  }
+
+  @media (max-width: 600px) {
+    .philosophy-cards {
+       grid-template-columns: 1fr;
+    }
+    .hero-title {
+       font-size: 3rem;
+    }
   }
 </style>

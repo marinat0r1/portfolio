@@ -1,6 +1,22 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RubiksCube from "../components/RubiksCube.astro";
+
+// Core value propositions extracted for clean, maintainable rendering
+const values = [
+  {
+    title: "Precision Engineering",
+    description: "I build with a focus on code quality, ensuring your site is maintainable, scalable, and resilient."
+  },
+  {
+    title: "Extreme Performance",
+    description: "A fast site isn't a luxury—it's a requirement. I optimize every byte for lightning-fast interactions."
+  },
+  {
+    title: "Minimalist Design",
+    description: "Clutter is the enemy of conversion. I design interfaces that are purposeful and elegantly simple."
+  }
+];
 ---
 
 <BaseLayout title="MH — Solving Business Complexity" description="Modern web design and development for forward-thinking businesses.">
@@ -24,20 +40,15 @@ import RubiksCube from "../components/RubiksCube.astro";
     </div>
   </section>
 
+  <!-- Business Value Proposition -->
   <section class="business-value container">
     <div class="value-grid">
-      <div class="value-card">
-        <h3>Precision Engineering</h3>
-        <p>I build with a focus on code quality, ensuring your site is maintainable, scalable, and resilient.</p>
-      </div>
-      <div class="value-card">
-        <h3>Extreme Performance</h3>
-        <p>A fast site isn't a luxury—it's a requirement. I optimize every byte for lightning-fast interactions.</p>
-      </div>
-      <div class="value-card">
-        <h3>Minimalist Design</h3>
-        <p>Clutter is the enemy of conversion. I design interfaces that are purposeful and elegantly simple.</p>
-      </div>
+      {values.map((val) => (
+        <div class="value-card">
+          <h3>{val.title}</h3>
+          <p>{val.description}</p>
+        </div>
+      ))}
     </div>
   </section>
 </BaseLayout>
