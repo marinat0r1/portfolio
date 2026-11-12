@@ -1,18 +1,35 @@
 ---
+
 ---
 
-<div id="rubiks-cube-container" class="rubiks-cube-container"></div>
+<div class="rubiks-cube-container" data-rubiks-cube></div>
 
 <script>
-  import * as THREE from 'three';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-  import { gsap } from 'gsap';
+  import * as THREE from "three";
+  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+  import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+  import { gsap } from "gsap";
 
-  const container = document.getElementById('rubiks-cube-container');
-  if (container) {
+  // ---------------------------------------------------------------------
+  // Each call builds one fully independent cube inside `container` and
+  // returns a destroy() function that releases every resource it created.
+  // ---------------------------------------------------------------------
+  function initRubiksCube(container: HTMLElement): () => void {
+    let disposed = false;
+    let rafId = 0;
+    let moveTimer: ReturnType<typeof setTimeout> | undefined;
+    let driftTimer: ReturnType<typeof setTimeout> | undefined;
+    let sliceTween: gsap.core.Tween | undefined;
+    let driftTween: gsap.core.Tween | undefined;
+
     // --- RENDERER ---
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(
+      35,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      1000,
+    );
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -22,14 +39,14 @@
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
-    // --- ORBIT CONTROLS (Resend-style interactivity) ---
+    // --- ORBIT CONTROLS ---
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enableZoom = false;
     controls.enablePan = false;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 4.0; // Faster overall rotation
+    controls.autoRotateSpeed = 4.0;
     controls.minPolarAngle = Math.PI / 4;
     controls.maxPolarAngle = (3 * Math.PI) / 4;
 
@@ -37,20 +54,22 @@
     function createStudioEnvironment(): THREE.Scene {
       const envScene = new THREE.Scene();
       const geo = new THREE.BoxGeometry();
-      geo.deleteAttribute('uv');
+      geo.deleteAttribute("uv");
 
-      // Surround with bright panels for strong, even reflections
       const positions = [
-        { pos: [-8, 12, 12], scale: [30, 30, 1], color: 0xffffff },   // Key
-        { pos: [12, 6, -12], scale: [25, 12, 1], color: 0x99ccff },   // Rim cool
-        { pos: [0, -14, 8], scale: [25, 25, 1], color: 0xfff0dd },    // Fill warm
-        { pos: [0, 20, 0], scale: [40, 1, 40], color: 0xeeeeff },     // Top
-        { pos: [-12, 0, -8], scale: [1, 20, 20], color: 0xe8e8e8 },   // Left
-        { pos: [12, 0, 8], scale: [1, 20, 20], color: 0xddeeff },     // Right
-        { pos: [0, 0, -15], scale: [20, 20, 1], color: 0xccccdd },    // Back
+        { pos: [-8, 12, 12], scale: [30, 30, 1], color: 0xffffff }, // Key
+        { pos: [12, 6, -12], scale: [25, 12, 1], color: 0x99ccff }, // Rim cool
+        { pos: [0, -14, 8], scale: [25, 25, 1], color: 0xfff0dd }, // Fill warm
+        { pos: [0, 20, 0], scale: [40, 1, 40], color: 0xeeeeff }, // Top
+        { pos: [-12, 0, -8], scale: [1, 20, 20], color: 0xe8e8e8 }, // Left
+        { pos: [12, 0, 8], scale: [1, 20, 20], color: 0xddeeff }, // Right
+        { pos: [0, 0, -15], scale: [20, 20, 1], color: 0xccccdd }, // Back
       ];
       positions.forEach(({ pos, scale, color }) => {
-        const panel = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, toneMapped: false }));
+        const panel = new THREE.Mesh(
+          geo,
+          new THREE.MeshBasicMaterial({ color, toneMapped: false }),
+        );
         panel.scale.set(scale[0], scale[1], scale[2]);
         panel.position.set(pos[0], pos[1], pos[2]);
         if (scale[0] !== 1 && scale[1] !== 1) panel.lookAt(0, 0, 0);
@@ -70,21 +89,27 @@
     pmremGenerator.dispose();
 
     // --- CANVAS TEXTURE GENERATORS ---
+    // Every texture is tracked so destroy() can dispose it.
+    const textures: THREE.Texture[] = [];
+    const track = (t: THREE.CanvasTexture): THREE.CanvasTexture => {
+      textures.push(t);
+      return t;
+    };
 
-    // 1. Perforated / Dotted pattern (Resend style)
-    function createPerforatedTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+    // 1. Perforated / dotted pattern
+    function createPerforatedTexture() {
       const size = 512;
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = size;
       canvas.height = size;
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext("2d")!;
 
-      ctx.fillStyle = '#0a0a0a';
+      ctx.fillStyle = "#0a0a0a";
       ctx.fillRect(0, 0, size, size);
 
       const dotSpacing = 22;
       const dotRadius = 4.5;
-      ctx.fillStyle = '#383838';
+      ctx.fillStyle = "#383838";
 
       for (let y = dotSpacing / 2; y < size; y += dotSpacing) {
         for (let x = dotSpacing / 2; x < size; x += dotSpacing) {
@@ -94,19 +119,18 @@
         }
       }
 
-      const map = new THREE.CanvasTexture(canvas);
+      const map = track(new THREE.CanvasTexture(canvas));
       map.colorSpace = THREE.SRGBColorSpace;
       map.wrapS = THREE.RepeatWrapping;
       map.wrapT = THREE.RepeatWrapping;
 
-      // Clone for bump
-      const bumpCanvas = document.createElement('canvas');
+      const bumpCanvas = document.createElement("canvas");
       bumpCanvas.width = size;
       bumpCanvas.height = size;
-      const bctx = bumpCanvas.getContext('2d')!;
-      bctx.fillStyle = '#000000';
+      const bctx = bumpCanvas.getContext("2d")!;
+      bctx.fillStyle = "#000000";
       bctx.fillRect(0, 0, size, size);
-      bctx.fillStyle = '#ffffff';
+      bctx.fillStyle = "#ffffff";
       for (let y = dotSpacing / 2; y < size; y += dotSpacing) {
         for (let x = dotSpacing / 2; x < size; x += dotSpacing) {
           bctx.beginPath();
@@ -114,7 +138,7 @@
           bctx.fill();
         }
       }
-      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      const bumpMap = track(new THREE.CanvasTexture(bumpCanvas));
       bumpMap.wrapS = THREE.RepeatWrapping;
       bumpMap.wrapT = THREE.RepeatWrapping;
 
@@ -122,18 +146,18 @@
     }
 
     // 2. Fine mesh / grill pattern
-    function createMeshTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+    function createMeshTexture() {
       const size = 512;
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = size;
       canvas.height = size;
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext("2d")!;
 
-      ctx.fillStyle = '#080808';
+      ctx.fillStyle = "#080808";
       ctx.fillRect(0, 0, size, size);
 
       const gridSize = 14;
-      ctx.strokeStyle = '#333333';
+      ctx.strokeStyle = "#333333";
       ctx.lineWidth = 1.5;
 
       for (let i = 0; i <= size; i += gridSize) {
@@ -147,19 +171,18 @@
         ctx.stroke();
       }
 
-      const map = new THREE.CanvasTexture(canvas);
+      const map = track(new THREE.CanvasTexture(canvas));
       map.colorSpace = THREE.SRGBColorSpace;
       map.wrapS = THREE.RepeatWrapping;
       map.wrapT = THREE.RepeatWrapping;
 
-      // Bump
-      const bumpCanvas = document.createElement('canvas');
+      const bumpCanvas = document.createElement("canvas");
       bumpCanvas.width = size;
       bumpCanvas.height = size;
-      const bctx = bumpCanvas.getContext('2d')!;
-      bctx.fillStyle = '#000000';
+      const bctx = bumpCanvas.getContext("2d")!;
+      bctx.fillStyle = "#000000";
       bctx.fillRect(0, 0, size, size);
-      bctx.strokeStyle = '#aaaaaa';
+      bctx.strokeStyle = "#aaaaaa";
       bctx.lineWidth = 1.5;
       for (let i = 0; i <= size; i += gridSize) {
         bctx.beginPath();
@@ -171,7 +194,7 @@
         bctx.lineTo(size, i);
         bctx.stroke();
       }
-      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      const bumpMap = track(new THREE.CanvasTexture(bumpCanvas));
       bumpMap.wrapS = THREE.RepeatWrapping;
       bumpMap.wrapT = THREE.RepeatWrapping;
 
@@ -179,17 +202,16 @@
     }
 
     // 3. Brushed metal / carbon fiber texture
-    function createBrushedTexture(): { map: THREE.CanvasTexture; bumpMap: THREE.CanvasTexture } {
+    function createBrushedTexture() {
       const size = 512;
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = size;
       canvas.height = size;
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext("2d")!;
 
-      ctx.fillStyle = '#090909';
+      ctx.fillStyle = "#090909";
       ctx.fillRect(0, 0, size, size);
 
-      // Horizontal brush strokes — more visible
       for (let y = 0; y < size; y += 2) {
         const brightness = Math.floor(Math.random() * 30) + 18;
         ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
@@ -200,17 +222,16 @@
         ctx.stroke();
       }
 
-      const map = new THREE.CanvasTexture(canvas);
+      const map = track(new THREE.CanvasTexture(canvas));
       map.colorSpace = THREE.SRGBColorSpace;
       map.wrapS = THREE.RepeatWrapping;
       map.wrapT = THREE.RepeatWrapping;
 
-      // Bump
-      const bumpCanvas = document.createElement('canvas');
+      const bumpCanvas = document.createElement("canvas");
       bumpCanvas.width = size;
       bumpCanvas.height = size;
-      const bctx = bumpCanvas.getContext('2d')!;
-      bctx.fillStyle = '#000000';
+      const bctx = bumpCanvas.getContext("2d")!;
+      bctx.fillStyle = "#000000";
       bctx.fillRect(0, 0, size, size);
       for (let y = 0; y < size; y += 2) {
         const val = Math.floor(Math.random() * 60) + 20;
@@ -221,16 +242,14 @@
         bctx.lineTo(size, y);
         bctx.stroke();
       }
-      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      const bumpMap = track(new THREE.CanvasTexture(bumpCanvas));
       bumpMap.wrapS = THREE.RepeatWrapping;
       bumpMap.wrapT = THREE.RepeatWrapping;
 
       return { map, bumpMap };
     }
 
-    // --- MATERIALS (4 Resend-style types) ---
-
-    // Type 1: Polished glossy black
+    // --- MATERIALS (4 types) ---
     const polishedMaterial = new THREE.MeshPhysicalMaterial({
       color: 0x111111,
       roughness: 0.03,
@@ -241,7 +260,6 @@
       envMapIntensity: 2.0,
     });
 
-    // Type 2: Perforated / dotted
     const perfTextures = createPerforatedTexture();
     const perforatedMaterial = new THREE.MeshPhysicalMaterial({
       color: 0x141414,
@@ -255,7 +273,6 @@
       envMapIntensity: 1.2,
     });
 
-    // Type 3: Fine mesh / grill
     const meshTextures = createMeshTexture();
     const meshMaterial = new THREE.MeshPhysicalMaterial({
       color: 0x141414,
@@ -269,7 +286,6 @@
       envMapIntensity: 1.5,
     });
 
-    // Type 4: Brushed metal / carbon fiber
     const brushedTextures = createBrushedTexture();
     const brushedMaterial = new THREE.MeshPhysicalMaterial({
       color: 0x121212,
@@ -283,68 +299,50 @@
       envMapIntensity: 1.6,
     });
 
-    const materialPool = [polishedMaterial, perforatedMaterial, meshMaterial, brushedMaterial];
+    const materialPool = [
+      polishedMaterial,
+      perforatedMaterial,
+      meshMaterial,
+      brushedMaterial,
+    ];
 
-    // --- GEOMETRY (Rounded sub-cubes) ---
-    function createRoundedBox(size: number, radius: number, segments: number): THREE.ExtrudeGeometry {
-      const shape = new THREE.Shape();
-      // Shrink 2D shape so bevel expansion yields correct final size
-      // Final width  = innerSize + 2*bevelSize = (size-2r) + 2r = size ✓
-      // Final height = innerSize + 2*bevelSize = (size-2r) + 2r = size ✓
-      // Final depth  = depth + 2*bevelThickness = (size-2r) + 2r = size ✓
-      const inner = size - 2 * radius;
-      const r = radius;
-
-      shape.moveTo(-inner / 2, -inner / 2 + r);
-      shape.lineTo(-inner / 2, inner / 2 - r);
-      shape.absarc(-inner / 2 + r, inner / 2 - r, r, Math.PI, Math.PI / 2, true);
-      shape.lineTo(inner / 2 - r, inner / 2);
-      shape.absarc(inner / 2 - r, inner / 2 - r, r, Math.PI / 2, 0, true);
-      shape.lineTo(inner / 2, -inner / 2 + r);
-      shape.absarc(inner / 2 - r, -inner / 2 + r, r, 0, -Math.PI / 2, true);
-      shape.lineTo(-inner / 2 + r, -inner / 2);
-      shape.absarc(-inner / 2 + r, -inner / 2 + r, r, -Math.PI / 2, -Math.PI, true);
-
-      const extrudeSettings = {
-        depth: inner,
-        bevelEnabled: true,
-        bevelSegments: segments * 2,
-        steps: 1,
-        bevelSize: r,
-        bevelThickness: r,
-        curveSegments: segments * 2,
-      };
-      const geo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-      geo.center();
-      return geo;
-    }
-
+    // --- GEOMETRY ---
+    // FIX 1 + 2: RoundedBoxGeometry extends BoxGeometry, so it has 6 material
+    // groups (one per face). The old ExtrudeGeometry only had 2, which meant
+    // 4 of the 6 random materials per cubelet were silently ignored.
+    // FIX 2: a single geometry is created and shared by all 27 cubelets.
     const subCubeSize = 0.92;
     const bevelRadius = 0.12;
     const segments = 8;
     const offset = subCubeSize + 0.08;
 
-    // We use a nested structure: 
-    // masterGroup rotates the entire cube smoothly & independently 
-    // group holds all the individual cubes and is where the slice animations happen
+    const sharedGeometry = new RoundedBoxGeometry(
+      subCubeSize,
+      subCubeSize,
+      subCubeSize,
+      segments,
+      bevelRadius,
+    );
+
+    // masterGroup: whole-cube drift. group: holds cubelets, slice turns happen here.
     const masterGroup = new THREE.Group();
     const group = new THREE.Group();
     masterGroup.add(group);
-    
+
     const allCubes: THREE.Mesh[] = [];
 
     for (let x = -1; x <= 1; x++) {
       for (let y = -1; y <= 1; y++) {
         for (let z = -1; z <= 1; z++) {
-          const geometry = createRoundedBox(subCubeSize, bevelRadius, segments);
-
-          // Assign random material per face (6 faces)
+          // Now all 6 entries are really used, one per face.
           const faceMaterials: THREE.MeshPhysicalMaterial[] = [];
           for (let i = 0; i < 6; i++) {
-            faceMaterials.push(materialPool[Math.floor(Math.random() * materialPool.length)]);
+            faceMaterials.push(
+              materialPool[Math.floor(Math.random() * materialPool.length)],
+            );
           }
 
-          const cube = new THREE.Mesh(geometry, faceMaterials);
+          const cube = new THREE.Mesh(sharedGeometry, faceMaterials);
           cube.position.set(x * offset, y * offset, z * offset);
           group.add(cube);
           allCubes.push(cube);
@@ -353,16 +351,13 @@
     }
     scene.add(masterGroup);
 
-    // --- LIGHTING (Bright studio — no dark spots) ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+    // --- LIGHTING ---
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    // Key light – bright from upper-left
     const keyLight = new THREE.DirectionalLight(0xffffff, 4.0);
     keyLight.position.set(-6, 10, 6);
     scene.add(keyLight);
 
-    // Rim light – cool blue accent from behind
     const rimLight = new THREE.SpotLight(0x8ab4f8, 12.0);
     rimLight.position.set(10, 5, -10);
     rimLight.lookAt(0, 0, 0);
@@ -370,27 +365,22 @@
     rimLight.penumbra = 0.8;
     scene.add(rimLight);
 
-    // Fill light – warm from front
     const fillLight = new THREE.DirectionalLight(0xfff5ee, 2.0);
     fillLight.position.set(0, 0, 10);
     scene.add(fillLight);
 
-    // Back fill – prevents pure black shadows
     const backFill = new THREE.DirectionalLight(0xddddff, 1.5);
     backFill.position.set(0, 0, -10);
     scene.add(backFill);
 
-    // Bottom fill – illuminates underside
     const bottomLight = new THREE.DirectionalLight(0xffeedd, 1.2);
     bottomLight.position.set(0, -10, 0);
     scene.add(bottomLight);
 
-    // Top highlight for edge definition
     const topLight = new THREE.PointLight(0xffffff, 3.0, 40);
     topLight.position.set(0, 14, 0);
     scene.add(topLight);
 
-    // Side fill – prevents dark left/right
     const leftFill = new THREE.DirectionalLight(0xeeeeff, 1.0);
     leftFill.position.set(-10, 2, 0);
     scene.add(leftFill);
@@ -399,79 +389,113 @@
     rightFill.position.set(10, 2, 0);
     scene.add(rightFill);
 
-    // Camera position (Resend angle – looking slightly down from upper-right)
-    // Responsive camera distance to fit perfectly on both mobile and desktop
-    if (container.clientWidth < 600) {
-      camera.position.set(7.8, 5.4, 10.2);
-    } else {
-      camera.position.set(6.5, 4.5, 8.5);
-    }
-    camera.lookAt(0, 0, 0);
-    // --- ANIMATION LOGIC (PROFESSIONAL CFOP ALGORITHMS) ---
-    // Standard Notation Mapping
-    // Axis: x=(R/L), y=(U/D), z=(F/B)
-    // Index: 1=(R,U,F), -1=(L,D,B)
-    // Direction: 1=counter-clockwise (relative to axis), -1=clockwise
-    type Move = { axis: 'x' | 'y' | 'z', index: number, dir: number, steps: number };
-    
-    const notationMap: Record<string, Move> = {
-      'U':  { axis: 'y', index:  1, dir: -1, steps: 1 },
-      "U'": { axis: 'y', index:  1, dir:  1, steps: 1 },
-      'U2': { axis: 'y', index:  1, dir: -1, steps: 2 },
-      'D':  { axis: 'y', index: -1, dir:  1, steps: 1 },
-      "D'": { axis: 'y', index: -1, dir: -1, steps: 1 },
-      'D2': { axis: 'y', index: -1, dir:  1, steps: 2 },
-      'R':  { axis: 'x', index:  1, dir: -1, steps: 1 },
-      "R'": { axis: 'x', index:  1, dir:  1, steps: 1 },
-      'R2': { axis: 'x', index:  1, dir: -1, steps: 2 },
-      'L':  { axis: 'x', index: -1, dir:  1, steps: 1 },
-      "L'": { axis: 'x', index: -1, dir: -1, steps: 1 },
-      'L2': { axis: 'x', index: -1, dir:  1, steps: 2 },
-      'F':  { axis: 'z', index:  1, dir: -1, steps: 1 },
-      "F'": { axis: 'z', index:  1, dir:  1, steps: 1 },
-      'F2': { axis: 'z', index:  1, dir: -1, steps: 2 },
-      'B':  { axis: 'z', index: -1, dir:  1, steps: 1 },
-      "B'": { axis: 'z', index: -1, dir: -1, steps: 1 },
-      'B2': { axis: 'z', index: -1, dir:  1, steps: 2 },
+    // --- ADAPTIVE CAMERA FRAMING ---
+    const dirX = 0.5599;
+    const dirY = 0.3876;
+    const dirZ = 0.7322;
+
+    const updateCamera = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (width === 0 || height === 0) return;
+
+      const aspect = width / height;
+      camera.aspect = aspect;
+
+      let baseDist = 8.2;
+      if (width >= 1400) {
+        baseDist = 7.7;
+      } else if (width >= 1024) {
+        baseDist = 8.2;
+      } else if (width >= 768) {
+        baseDist = 8.8;
+      } else {
+        baseDist = 9.4;
+      }
+
+      let dist = baseDist;
+      if (aspect < 0.95) {
+        dist = baseDist * Math.pow(0.95 / aspect, 0.72);
+      } else if (aspect > 1.3) {
+        dist = Math.max(7.4, baseDist - (aspect - 1.3) * 0.7);
+      }
+
+      camera.position.set(dirX * dist, dirY * dist, dirZ * dist);
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
     };
 
-    // Professional Speedsolving Algorithms (CFOP OLL & PLL)
+    updateCamera();
+
+    // Let mobile users scroll the page vertically through the canvas
+    renderer.domElement.style.touchAction = "pan-y";
+
+    // --- MOVE NOTATION & ALGORITHMS ---
+    type Move = {
+      axis: "x" | "y" | "z";
+      index: number;
+      dir: number;
+      steps: number;
+    };
+
+    const notationMap: Record<string, Move> = {
+      U: { axis: "y", index: 1, dir: -1, steps: 1 },
+      "U'": { axis: "y", index: 1, dir: 1, steps: 1 },
+      U2: { axis: "y", index: 1, dir: -1, steps: 2 },
+      D: { axis: "y", index: -1, dir: 1, steps: 1 },
+      "D'": { axis: "y", index: -1, dir: -1, steps: 1 },
+      D2: { axis: "y", index: -1, dir: 1, steps: 2 },
+      R: { axis: "x", index: 1, dir: -1, steps: 1 },
+      "R'": { axis: "x", index: 1, dir: 1, steps: 1 },
+      R2: { axis: "x", index: 1, dir: -1, steps: 2 },
+      L: { axis: "x", index: -1, dir: 1, steps: 1 },
+      "L'": { axis: "x", index: -1, dir: -1, steps: 1 },
+      L2: { axis: "x", index: -1, dir: 1, steps: 2 },
+      F: { axis: "z", index: 1, dir: -1, steps: 1 },
+      "F'": { axis: "z", index: 1, dir: 1, steps: 1 },
+      F2: { axis: "z", index: 1, dir: -1, steps: 2 },
+      B: { axis: "z", index: -1, dir: 1, steps: 1 },
+      "B'": { axis: "z", index: -1, dir: -1, steps: 1 },
+      B2: { axis: "z", index: -1, dir: 1, steps: 2 },
+    };
+
     const algorithms = [
-      "R U R' U' R' F R2 U' R' U' R U R' F'", // T-Perm (Popular PLL)
-      "R U R' U R U2 R'",                     // Sune (Classic OLL)
-      "R U R' F' R U R' U' R' F R2 U' R' U'", // J-Perm (PLL)
-      "R2 U R U R' U' R' U' R' U R'",         // U-Perm (PLL)
-      "F R U R' U' F'"                        // Line OLL
+      "R U R' U' R' F R2 U' R' U' R U R' F'", // T-Perm
+      "R U R' U R U2 R'", // Sune
+      "R U R' F' R U R' U' R' F R2 U' R' U'", // J-Perm
+      "R2 U R U R' U' R' U' R' U R'", // U-Perm
+      "F R U R' U' F'", // Line OLL
     ];
 
     let currentAlgorithmIndex = 0;
     let currentMoveSequence: string[] = [];
     let isSliceAnimating = false;
 
-    const getCubesInSlice = (axis: 'x' | 'y' | 'z', index: number): THREE.Mesh[] => {
-      return allCubes.filter((cube) => {
-        const pos = cube.position[axis];
-        const quantized = Math.round(pos / offset);
-        return quantized === index;
-      });
-    };
+    const getCubesInSlice = (
+      axis: "x" | "y" | "z",
+      index: number,
+    ): THREE.Mesh[] =>
+      allCubes.filter(
+        (cube) => Math.round(cube.position[axis] / offset) === index,
+      );
 
     const loadNextAlgorithm = () => {
       const algStr = algorithms[currentAlgorithmIndex];
-      // Split by spaces, removing any grouping brackets
-      currentMoveSequence = algStr.replace(/[()]/g, '').split(' ').filter(m => m.length > 0);
-      
+      currentMoveSequence = algStr
+        .replace(/[()]/g, "")
+        .split(" ")
+        .filter((m) => m.length > 0);
       currentAlgorithmIndex = (currentAlgorithmIndex + 1) % algorithms.length;
     };
 
-    // 1. Professional algorithm sequencer
+    // Slice-turn sequencer
     const executeNextMove = () => {
-      if (isSliceAnimating) return;
+      if (disposed || isSliceAnimating) return;
 
       if (currentMoveSequence.length === 0) {
-        // Longer pause between full algorithms so they can be visually digested
         loadNextAlgorithm();
-        setTimeout(executeNextMove, 2000); 
+        moveTimer = setTimeout(executeNextMove, 2000);
         return;
       }
 
@@ -480,110 +504,151 @@
       const move = notationMap[moveStr];
 
       if (!move) {
-        // Skip unknown moves
         isSliceAnimating = false;
         executeNextMove();
         return;
       }
-      
+
       const sliceAngle = (Math.PI / 2) * move.dir * move.steps;
-      // Smoother, visually pleasing turn speed (not hyper-fast)
-      const sliceDuration = 0.6 + (move.steps - 1) * 0.25; 
+      const sliceDuration = 0.6 + (move.steps - 1) * 0.25;
 
       const sliceCubes = getCubesInSlice(move.axis, move.index);
-      
+
       const slicePivot = new THREE.Object3D();
       slicePivot.rotation.set(0, 0, 0);
       group.add(slicePivot);
 
-      sliceCubes.forEach((cube) => {
-        slicePivot.attach(cube);
-      });
+      sliceCubes.forEach((cube) => slicePivot.attach(cube));
 
-      gsap.to(slicePivot.rotation, {
+      sliceTween = gsap.to(slicePivot.rotation, {
         [move.axis]: sliceAngle,
         duration: sliceDuration,
-        ease: 'power2.inOut',
+        ease: "power2.inOut",
         onComplete: () => {
           for (let i = sliceCubes.length - 1; i >= 0; i--) {
             group.attach(sliceCubes[i]);
           }
+          // Snap to the exact grid so float error never accumulates
           sliceCubes.forEach((cube) => {
             cube.position.x = Math.round(cube.position.x / offset) * offset;
             cube.position.y = Math.round(cube.position.y / offset) * offset;
             cube.position.z = Math.round(cube.position.z / offset) * offset;
-            cube.rotation.x = Math.round(cube.rotation.x / (Math.PI / 2)) * (Math.PI / 2);
-            cube.rotation.y = Math.round(cube.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
-            cube.rotation.z = Math.round(cube.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
+            cube.rotation.x =
+              Math.round(cube.rotation.x / (Math.PI / 2)) * (Math.PI / 2);
+            cube.rotation.y =
+              Math.round(cube.rotation.y / (Math.PI / 2)) * (Math.PI / 2);
+            cube.rotation.z =
+              Math.round(cube.rotation.z / (Math.PI / 2)) * (Math.PI / 2);
             cube.updateMatrix();
           });
           group.remove(slicePivot);
-          
+
           isSliceAnimating = false;
-          // Noticeable relaxed delay between moves in the sequence to follow the flow smoothly
-          const nextDelay = 250 + Math.random() * 100;
-          setTimeout(executeNextMove, nextDelay);
+          if (disposed) return;
+          moveTimer = setTimeout(executeNextMove, 250 + Math.random() * 100);
         },
       });
     };
 
-    // 2. Continuous Organic Whole-Cube Rotation (Rotates the master wrapper independently)
+    // Whole-cube drift
     const driftWholeCube = () => {
-      // Pick random angles slightly offset to keep it drifting playfully
+      if (disposed) return;
       const targetX = masterGroup.rotation.x + (Math.random() - 0.5) * Math.PI;
       const targetY = masterGroup.rotation.y + (Math.random() - 0.5) * Math.PI;
-      const targetZ = masterGroup.rotation.z + (Math.random() - 0.5) * Math.PI * 0.3; // keep Z drift subtle
-      
-      const duration = 4.0 + Math.random() * 3.0; // Very slow and smooth
+      const targetZ =
+        masterGroup.rotation.z + (Math.random() - 0.5) * Math.PI * 0.3;
 
-      gsap.to(masterGroup.rotation, {
+      driftTween = gsap.to(masterGroup.rotation, {
         x: targetX,
         y: targetY,
         z: targetZ,
-        duration: duration,
-        ease: 'sine.inOut', // Super soft drifting ease
-        onComplete: driftWholeCube // Loop infinitely
+        duration: 4.0 + Math.random() * 3.0,
+        ease: "sine.inOut",
+        onComplete: driftWholeCube,
       });
     };
 
-    // Start loops independently
-    setTimeout(executeNextMove, 800);
-    setTimeout(driftWholeCube, 100);
+    moveTimer = setTimeout(executeNextMove, 800);
+    driftTimer = setTimeout(driftWholeCube, 100);
 
     // --- RENDER LOOP ---
     const animate = () => {
-      requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
 
     // --- RESIZE ---
-    const handleResize = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      camera.aspect = width / height;
-      if (width < 600) {
-        camera.position.set(7.8, 5.4, 10.2);
-      } else {
-        camera.position.set(6.5, 4.5, 8.5);
-      }
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
+    window.addEventListener("resize", updateCamera);
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => updateCamera());
+      ro.observe(container);
+    }
 
-    window.addEventListener('resize', handleResize);
     animate();
 
     // --- ENTRY ANIMATION ---
-    container.classList.add('animate-in');
+    container.classList.add("animate-in");
+
+    // --- FIX 3: TEARDOWN ---
+    return function destroy() {
+      disposed = true;
+
+      cancelAnimationFrame(rafId);
+      clearTimeout(moveTimer);
+      clearTimeout(driftTimer);
+      sliceTween?.kill();
+      driftTween?.kill();
+
+      window.removeEventListener("resize", updateCamera);
+      ro?.disconnect();
+      controls.dispose();
+
+      sharedGeometry.dispose();
+      materialPool.forEach((m) => m.dispose());
+      textures.forEach((t) => t.dispose());
+      (scene.environment as THREE.Texture | null)?.dispose();
+      scene.environment = null;
+
+      renderer.dispose();
+      renderer.forceContextLoss();
+      renderer.domElement.remove();
+      container.classList.remove("animate-in");
+    };
   }
+
+  // ---------------------------------------------------------------------
+  // FIX 4: mount on every matching element (no more getElementById), and
+  // keep a registry so each instance can be destroyed when its page goes
+  // away (e.g. with Astro view transitions).
+  // ---------------------------------------------------------------------
+  const instances = new Map<HTMLElement, () => void>();
+
+  function mountAll() {
+    document
+      .querySelectorAll<HTMLElement>("[data-rubiks-cube]")
+      .forEach((el) => {
+        if (!instances.has(el)) instances.set(el, initRubiksCube(el));
+      });
+  }
+
+  function unmountAll() {
+    instances.forEach((destroy) => destroy());
+    instances.clear();
+  }
+
+  mountAll();
+  document.addEventListener("astro:page-load", mountAll);
+  document.addEventListener("astro:before-swap", unmountAll);
 </script>
 
 <style>
   .rubiks-cube-container {
     width: 100%;
-    height: 520px;
-    max-width: 100%;
+    height: 640px;
+    max-width: 620px;
+    margin: 0 auto;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -591,7 +656,6 @@
     transform: scale(0.9);
     transition: none;
     cursor: grab;
-    /* Prevent selection highlight / bounding box on click/drag */
     outline: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -616,15 +680,38 @@
     }
   }
 
+  @media (min-width: 1440px) {
+    .rubiks-cube-container {
+      height: 700px;
+      max-width: 680px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .rubiks-cube-container {
+      height: 520px;
+      max-width: 500px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .rubiks-cube-container {
+      height: 440px;
+      max-width: 440px;
+    }
+  }
+
   @media (max-width: 768px) {
     .rubiks-cube-container {
-      height: 340px;
+      height: 350px;
+      max-width: 360px;
     }
   }
 
   @media (max-width: 480px) {
     .rubiks-cube-container {
-      height: 290px;
+      height: 310px;
+      max-width: 320px;
     }
   }
 </style>
