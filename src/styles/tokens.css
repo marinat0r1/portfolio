@@ -10,6 +10,9 @@
   --color-accent: #ffffff;
   --color-accent-soft: rgba(255, 255, 255, 0.05);
 
+  /* Header & Navigation */
+  --header-height: 64px;
+
   /* Spacing - 8px based grid */
   --space-1: 4px;
   --space-2: 8px;
@@ -36,4 +39,10 @@
   --text-muted: var(--color-text-muted);
   --border-color: var(--color-border);
   --accent-primary: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-height: 60px;
+  }
 }

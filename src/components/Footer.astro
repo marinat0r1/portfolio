@@ -1,9 +1,9 @@
 <footer class="site-footer">
-  <div class="container py-12">
+  <div class="container footer-container">
     <div class="footer-grid">
       <div class="footer-brand">
          <a href="/" class="brand">MH</a>
-         <p class="text-muted mt-4 max-w-xs">Building premium digital experiences for forward-thinking businesses.</p>
+         <p class="text-muted mt-3 max-w-xs">Building premium digital experiences for forward-thinking businesses.</p>
       </div>
       
       <div class="footer-links">
@@ -13,15 +13,15 @@
             <a href="/services">Services</a>
          </div>
          <div class="link-group">
-            <h4>Social</h4>
-            <a href="#">X / Twitter</a>
-            <a href="#">LinkedIn</a>
-            <a href="#">GitHub</a>
+            <h4>Connect</h4>
+            <a href="/about#contact">Contact</a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://github.com/marinat0r1" target="_blank" rel="noopener noreferrer">GitHub</a>
          </div>
       </div>
     </div>
     
-    <div class="footer-bottom mt-12 pt-8 border-t border-color-border">
+    <div class="footer-bottom mt-10 pt-6">
       <p class="text-muted text-xs">© {new Date().getFullYear()} MH Portfolio. Built for performance.</p>
     </div>
   </div>
@@ -34,11 +34,16 @@
     background: var(--color-bg);
   }
 
+  .footer-container {
+    padding-top: var(--space-10);
+    padding-bottom: var(--space-8);
+  }
+
   .footer-grid {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: var(--space-10);
+    gap: var(--space-8);
   }
 
   .brand {
@@ -51,16 +56,16 @@
 
   .footer-links {
     display: flex;
-    gap: var(--space-12);
+    gap: var(--space-10);
   }
 
   .link-group h4 {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-primary);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
   }
 
   .link-group a {
@@ -70,22 +75,43 @@
     text-decoration: none;
     margin-bottom: var(--space-2);
     transition: color 0.2s ease;
+    padding: 2px 0;
   }
 
   .link-group a:hover {
     color: var(--color-text-primary);
   }
 
+  .footer-bottom {
+    border-top: 1px solid var(--color-border);
+  }
+
   .text-muted { color: var(--color-text-muted); }
-  .text-xs { font-size: 0.75rem; }
-  .mt-4 { margin-top: 1rem; }
-  .mt-12 { margin-top: 3rem; }
-  .pt-8 { padding-top: 2rem; }
-  .max-w-xs { max-width: 20rem; }
-  .border-t { border-top: 1px solid var(--color-border); }
+  .text-xs { font-size: 0.8rem; }
+  .mt-3 { margin-top: 0.75rem; }
+  .mt-10 { margin-top: 2.5rem; }
+  .pt-6 { padding-top: 1.5rem; }
+  .max-w-xs { max-width: 20rem; line-height: 1.5; font-size: 0.9rem; }
 
   @media (max-width: 640px) {
-    .footer-grid { flex-direction: column; }
-    .footer-links { gap: var(--space-8); }
+    .site-footer {
+      margin-top: var(--space-8);
+    }
+    .footer-container {
+      padding-top: var(--space-8);
+      padding-bottom: var(--space-6);
+    }
+    .footer-grid { 
+      flex-direction: column; 
+      gap: var(--space-6); 
+    }
+    .footer-links { 
+      gap: var(--space-8); 
+      justify-content: flex-start; 
+    }
+    .footer-bottom {
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+    }
   }
 </style>

@@ -138,107 +138,66 @@
   font-style: normal;
 }
 
-/* Buttons */
-
-.cta-buttons {
-  display: flex;
-  gap: 32px;
-  align-items: center;
-}
-
-/* shared button styling */
+/* Unified Modern Monochromatic Buttons */
 .btn {
-  height: 56px;
-  padding: 0 34px;
-  border-radius: 14px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font: 600 22px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  letter-spacing: .2px;
   text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
   user-select: none;
-
-  transition:
-    transform .15s ease,
-    box-shadow .2s ease,
-    border-color .2s ease,
-    color .2s ease,
-    background-position .25s ease;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn:focus-visible {
-  outline: 3px solid rgba(80, 180, 255, .7);
-  outline-offset: 4px;
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 3px;
 }
 
-/* blue -> aqua hover */
 .btn-primary {
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, .15);
-
-  /* start blue, hover slides to aqua */
-  background: linear-gradient(90deg, #2f67ff 0%, #49d8ff 60%, #49d8ff 100%);
-  background-size: 200% 100%;
-  background-position: 0% 50%;
-
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, .55),
-    inset 0 1px 0 rgba(255, 255, 255, .25);
+  background: var(--color-text-primary);
+  color: var(--color-bg);
+  border: 1px solid var(--color-text-primary);
 }
 
 .btn-primary:hover {
-  background-position: 100% 50%;
+  background: #e4e4e7;
+  color: #000000;
+  text-decoration: none;
   transform: translateY(-1px);
-  box-shadow:
-    0 14px 34px rgba(0, 0, 0, .65),
-    inset 0 1px 0 rgba(255, 255, 255, .25);
 }
 
-/* arrow (SVG chevron) */
-.btn-primary .arrow {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 14px;
-}
-
-.btn-primary .arrow-icon {
-  width: 22px;
-  height: 22px;
-  stroke: rgba(255, 255, 255, .95);
-  stroke-width: 2.5;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-
-  transform: translateX(0);
-  transition: transform .18s ease;
-}
-
-/* arrow "jump" on hover */
-.btn-primary:hover .arrow-icon {
-  transform: translateX(6px);
-}
-
-/* outlined dark button */
 .btn-secondary {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--text-secondary);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transform: translateY(-1px);
 }
 
-/* optional: reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
+@media (max-width: 480px) {
+  .btn {
+    padding: 0 var(--space-4);
+  }
+}
 
-  .btn,
-  .btn-primary .arrow-icon {
+@media (prefers-reduced-motion: reduce) {
+  .btn {
     transition: none;
+    transform: none !important;
   }
 }

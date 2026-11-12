@@ -72,7 +72,7 @@ const services = [
 <BaseLayout title="Services — High-Performance Web Solutions" description="Professional web design and development services.">
   <div class="container section-py">
     <!-- Header Section -->
-    <header class="text-left mb-16">
+    <header class="text-left mb-12 header-intro">
       <h1 class="services-title">Building for <span class="text-gradient">Performance</span></h1>
       <p class="text-secondary text-lg max-w-2xl">
         I engineer digital tools designed to solve high-impact business problems. Focused on technical excellence and minimalist design.
@@ -109,7 +109,7 @@ const services = [
        <div class="glass p-12 text-center">
           <h2 class="text-3xl font-bold mb-4">Ready to optimize your presence?</h2>
           <p class="text-secondary mb-10">Let's discuss how technical excellence can drive your business metrics.</p>
-          <a href="mailto:hincum@gmail.com" class="btn btn-primary">Book Consultation</a>
+          <a href="mailto:marin.petru.hincu@gmail.com" class="btn btn-primary">Book Consultation</a>
        </div>
     </section>
   </div>
@@ -118,13 +118,15 @@ const services = [
 <style>
   /* --- Typography & Header --- */
   .services-title {
-    font-size: clamp(3rem, 6vw, 5rem);
-    letter-spacing: -0.05em;
-    margin-bottom: var(--space-4);
+    font-size: clamp(2.25rem, 5.5vw, 4rem);
+    letter-spacing: -0.04em;
+    margin-bottom: var(--space-3);
     font-weight: 700;
+    line-height: 1.15;
+    word-break: break-word;
   }
 
-  .text-lg { font-size: 1.25rem; }
+  .text-lg { font-size: clamp(1rem, 2vw, 1.2rem); }
 
   /* --- Services Layout --- */
   .services-list {
@@ -134,7 +136,7 @@ const services = [
   }
 
   .service-item {
-    padding: var(--space-10);
+    padding: var(--space-8);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -142,43 +144,43 @@ const services = [
 
   .service-item:hover {
      border-color: var(--color-border-hover);
-     background: rgba(255, 255, 255, 0.015); /* Slightly brighter hover state */
+     background: rgba(255, 255, 255, 0.015);
   }
 
   .service-content {
      display: grid;
-     /* Proper side-by-side distribution avoiding text overlap */
      grid-template-columns: 1.1fr 0.9fr;
-     gap: var(--space-12);
+     gap: var(--space-10);
      align-items: center;
-     min-height: 380px;
+     min-height: 340px;
   }
 
   .service-main {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-width: 0; /* Prevents flex children from overflowing */
+    min-width: 0;
   }
 
   .service-main h2 {
-    font-size: 2.5rem;
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-6);
-    letter-spacing: -0.04em;
-    font-weight: 800;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-4);
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    line-height: 1.25;
     color: var(--color-text-primary);
   }
 
   .service-main p {
     color: var(--color-text-secondary);
-    font-size: 1.15rem;
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
     line-height: 1.6;
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
   }
 
   .service-badge {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
@@ -191,18 +193,16 @@ const services = [
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
+    gap: var(--space-3);
     margin-top: var(--space-2);
   }
 
   .service-points li {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--color-text-primary);
-    padding-left: 24px;
+    padding-left: 20px;
     position: relative;
     font-weight: 500;
-    margin-right: var(--space-4);
-    margin-bottom: var(--space-2);
   }
 
   .service-points li::before {
@@ -410,27 +410,50 @@ const services = [
   :global(.mock-stat-fill.p100) { width: 100%; }
 
   /* Utility Spacing */
-  .p-12 { padding: 3.5rem; }
-  .mt-16 { margin-top: 4rem; }
-  .mb-10 { margin-bottom: 2.5rem; }
-  .text-3xl { font-size: 2rem; }
+  .p-12 { padding: 3rem; }
+  .mt-16 { margin-top: 3.5rem; }
+  .mb-10 { margin-bottom: 2rem; }
+  .text-3xl { font-size: clamp(1.4rem, 3.5vw, 2rem); }
 
   /* --- Responsive Layout --- */
   @media (max-width: 1024px) {
     .service-content { 
       grid-template-columns: 1fr; 
-      gap: var(--space-8);
+      gap: var(--space-6);
       min-height: auto;
     }
     .service-visual { 
-      margin-top: var(--space-4);
-      /* Keeping visual visible on mobile, just centering it */
+      margin-top: var(--space-2);
     }
-    .service-item { padding: var(--space-8); }
   }
   
   @media (max-width: 768px) {
-    .service-item { padding: var(--space-6); }
-    .service-main h2 { font-size: 2rem; }
+    .service-item { 
+      padding: var(--space-5) var(--space-4); 
+    }
+    .service-points {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .visual-box {
+      aspect-ratio: 16 / 10;
+      padding: var(--space-4);
+    }
+    :global(.mockup-perf) {
+      gap: var(--space-4);
+    }
+    :global(.mock-gauge) {
+      width: 75px;
+      height: 75px;
+    }
+    :global(.mock-score) {
+      font-size: 1.5rem;
+    }
+    :global(.mockup-brand) {
+      grid-template-columns: 50px 1fr;
+    }
+    .p-12 {
+      padding: var(--space-6) var(--space-4);
+    }
   }
 </style>

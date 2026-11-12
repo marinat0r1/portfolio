@@ -400,8 +400,12 @@
     scene.add(rightFill);
 
     // Camera position (Resend angle – looking slightly down from upper-right)
-    // Moved slightly further back than original to prevent clipping during slice animation
-    camera.position.set(6.5, 4.5, 8.5);
+    // Responsive camera distance to fit perfectly on both mobile and desktop
+    if (container.clientWidth < 600) {
+      camera.position.set(7.8, 5.4, 10.2);
+    } else {
+      camera.position.set(6.5, 4.5, 8.5);
+    }
     camera.lookAt(0, 0, 0);
     // --- ANIMATION LOGIC (PROFESSIONAL CFOP ALGORITHMS) ---
     // Standard Notation Mapping
@@ -558,6 +562,11 @@
       const width = container.clientWidth;
       const height = container.clientHeight;
       camera.aspect = width / height;
+      if (width < 600) {
+        camera.position.set(7.8, 5.4, 10.2);
+      } else {
+        camera.position.set(6.5, 4.5, 8.5);
+      }
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
@@ -573,7 +582,8 @@
 <style>
   .rubiks-cube-container {
     width: 100%;
-    height: 600px;
+    height: 520px;
+    max-width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -608,7 +618,13 @@
 
   @media (max-width: 768px) {
     .rubiks-cube-container {
-      height: 400px;
+      height: 340px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .rubiks-cube-container {
+      height: 290px;
     }
   }
 </style>
