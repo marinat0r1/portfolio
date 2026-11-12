@@ -8,7 +8,7 @@ const links = [
 const currentPath = Astro.url.pathname;
 const isCurrent = (href: string) => {
   if (href === "/") return currentPath === "/" || currentPath === "";
-  return currentPath.startsWith(href);
+  return currentPath === href || currentPath.startsWith(href + "/");
 };
 ---
 
@@ -16,7 +16,7 @@ const isCurrent = (href: string) => {
   <div class="container header-inner">
     <a class="brand" href="/" aria-label="MH Home">MH</a>
 
-    <!-- Desktop Nav -->
+    <!-- Desktop Navigation -->
     <nav aria-label="Primary Navigation" class="desktop-nav">
       <ul class="nav-list">
         {links.map((l) => (
@@ -89,19 +89,16 @@ const isCurrent = (href: string) => {
 
     toggleBtn.addEventListener('click', () => toggleMenu());
 
-    // Close when tapping any link inside mobile drawer
     drawer.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => toggleMenu(false));
     });
 
-    // Close on Escape key press
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && toggleBtn.getAttribute('aria-expanded') === 'true') {
         toggleMenu(false);
       }
     });
 
-    // Close when resizing viewport above mobile breakpoint (768px)
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768 && toggleBtn.getAttribute('aria-expanded') === 'true') {
         toggleMenu(false);
@@ -117,11 +114,11 @@ const isCurrent = (href: string) => {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--color-border);
-    height: var(--header-height);
+    height: 64px;
     display: flex;
     align-items: center;
     transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -140,9 +137,6 @@ const isCurrent = (href: string) => {
     letter-spacing: -0.04em;
     color: var(--color-text-primary);
     text-decoration: none;
-    padding: var(--space-2) 0;
-    display: inline-flex;
-    align-items: center;
   }
 
   .desktop-nav {
@@ -162,24 +156,12 @@ const isCurrent = (href: string) => {
     font-weight: 500;
     color: var(--color-text-secondary);
     text-decoration: none;
-    padding: var(--space-2) 0;
-    position: relative;
     transition: color 0.2s ease;
   }
 
   .nav-list a:hover,
   .nav-list a.active {
     color: var(--color-text-primary);
-  }
-
-  .nav-list a.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--color-text-primary);
   }
 
   .header-actions {
@@ -191,17 +173,15 @@ const isCurrent = (href: string) => {
   .btn-minimal {
     font-size: 0.85rem;
     font-weight: 600;
-    padding: 7px 14px;
+    padding: 8px 16px;
     border-radius: var(--radius-sm);
     background: var(--color-text-primary);
     color: var(--color-bg);
     text-decoration: none;
-    white-space: nowrap;
+    transition: opacity 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 36px;
-    transition: opacity 0.2s ease;
   }
 
   .btn-minimal:hover {
@@ -209,7 +189,7 @@ const isCurrent = (href: string) => {
     text-decoration: none;
   }
 
-  /* Hamburger Toggle */
+  /* Hamburger Toggle for Mobile Only */
   .mobile-toggle {
     display: none;
     align-items: center;
@@ -250,7 +230,6 @@ const isCurrent = (href: string) => {
     transform-origin: center;
   }
 
-  /* Animated Morph to X */
   .site-header.nav-open .hamburger-line.line-1 {
     transform: translateY(6px) rotate(45deg);
   }
@@ -259,12 +238,15 @@ const isCurrent = (href: string) => {
     transform: translateY(-6px) rotate(-45deg);
   }
 
-  /* Mobile Drawer */
   .mobile-nav-drawer {
     display: none;
   }
 
   @media (max-width: 768px) {
+    .site-header {
+      height: 60px;
+    }
+
     .desktop-nav {
       display: none;
     }
@@ -276,7 +258,7 @@ const isCurrent = (href: string) => {
     .mobile-nav-drawer {
       display: block;
       position: fixed;
-      top: var(--header-height);
+      top: 60px;
       left: 0;
       right: 0;
       background: rgba(8, 8, 8, 0.96);
@@ -290,7 +272,7 @@ const isCurrent = (href: string) => {
       transform: translateY(-8px);
       pointer-events: none;
       transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
-      max-height: calc(100vh - var(--header-height));
+      max-height: calc(100vh - 60px);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }

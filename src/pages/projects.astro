@@ -70,7 +70,7 @@ const projects = [
 <BaseLayout title="Projects — Transforming Digital Presence" description="Case studies of how I've helped businesses grow through modern web development.">
   <div class="container section-py">
     <!-- Header Section -->
-    <header class="mb-12 header-intro">
+    <header class="mb-16 header-intro">
       <h1 class="hero-title">Selected Work</h1>
       <p class="text-secondary text-lg max-w-2xl">
         A selection of projects where I've combined premium design with technical excellence to deliver business value.
@@ -156,13 +156,13 @@ const projects = [
 
   /* --- Text Info Styling --- */
   .hero-title {
-    font-size: clamp(2.25rem, 5.5vw, 4rem);
-    letter-spacing: -0.04em;
-    line-height: 1.15;
-    word-break: break-word;
+    font-size: clamp(3rem, 6vw, 5rem);
+    letter-spacing: -0.05em;
+    font-weight: 700;
+    line-height: 1.1;
   }
 
-  .text-lg { font-size: clamp(1rem, 2vw, 1.2rem); }
+  .text-lg { font-size: 1.25rem; }
 
   .project-main {
     display: flex;
@@ -172,10 +172,10 @@ const projects = [
   }
 
   .project-header h2 {
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-size: clamp(2rem, 3vw, 2.75rem);
     margin-top: var(--space-2);
-    margin-bottom: var(--space-4);
-    font-weight: 700;
+    margin-bottom: var(--space-6);
+    font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--color-text-primary);
   }
@@ -189,16 +189,16 @@ const projects = [
   }
 
   .description {
-    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-size: 1.125rem;
     line-height: 1.6;
     max-width: 480px;
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-8);
   }
 
   /* --- Metadata Labels --- */
   .meta {
     display: flex;
-    gap: var(--space-8);
+    gap: var(--space-12);
     margin-bottom: var(--space-6);
     flex-wrap: wrap;
   }
@@ -416,7 +416,7 @@ const projects = [
   @media (max-width: 1024px) {
     .project-content { 
       grid-template-columns: 1fr; 
-      gap: var(--space-6);
+      gap: var(--space-8);
     }
     .project-main {
       padding-right: 0;
@@ -426,11 +426,26 @@ const projects = [
       height: 280px;
       aspect-ratio: auto;
     }
+    .project-item { padding: var(--space-8); }
   }
 
   @media (max-width: 768px) {
+    .header-intro {
+      margin-bottom: var(--space-6);
+    }
+    .hero-title {
+      font-size: clamp(2.25rem, 7vw, 3.25rem);
+    }
     .project-item { 
       padding: var(--space-5) var(--space-4); 
+    }
+    .project-header h2 {
+      font-size: clamp(1.4rem, 4vw, 1.85rem);
+      margin-bottom: var(--space-3);
+    }
+    .description {
+      font-size: 1rem;
+      margin-bottom: var(--space-4);
     }
     .meta {
       gap: var(--space-4);
