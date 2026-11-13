@@ -331,18 +331,28 @@
 
     const allCubes: THREE.Mesh[] = [];
 
+    // How materials are spread over a cubelet's 6 faces.
+    //  "caps-sides" : 4 side faces share one material, the 2 opposite z faces
+    //                 share another. This matches the original look, where
+    //                 neighbouring cubelets read as clearly different tiles.
+    //  "cubelet"    : all 6 faces share one material (strongest tile contrast).
+    //  "per-face"   : every face is random (busiest, tiles blend together).
+    type FaceMode = "caps-sides" | "cubelet" | "per-face";
+    let FACE_MODE: FaceMode = "caps-sides";
+
+    const randomMaterial = () =>
+      materialPool[Math.floor(Math.random() * materialPool.length)];
+
+    // BoxGeometry face order: +x, -x, +y, -y, +z, -z
+    const pickFaceMaterials = (): THREE.MeshPhysicalMaterial[] => {
+      const body = randomMaterial();
+      const cap = randomMaterial();
+      return [body, body, body, body, cap, cap];
+    };
     for (let x = -1; x <= 1; x++) {
       for (let y = -1; y <= 1; y++) {
         for (let z = -1; z <= 1; z++) {
-          // Now all 6 entries are really used, one per face.
-          const faceMaterials: THREE.MeshPhysicalMaterial[] = [];
-          for (let i = 0; i < 6; i++) {
-            faceMaterials.push(
-              materialPool[Math.floor(Math.random() * materialPool.length)],
-            );
-          }
-
-          const cube = new THREE.Mesh(sharedGeometry, faceMaterials);
+          const cube = new THREE.Mesh(sharedGeometry, pickFaceMaterials());
           cube.position.set(x * offset, y * offset, z * offset);
           group.add(cube);
           allCubes.push(cube);
